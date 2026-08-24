@@ -102,6 +102,19 @@ function cleanText($el) {
   return $clone.text().replace(/\s+/g, ' ').trim();
 }
 
+// Reine Networking-Formate (Afterwork, Meetup, Stammtisch …) werden von
+// Quellen oft unter einer allgemeinen Kategorie (z. B. "Bildung & Vortrag")
+// mitgeführt. Titel-Schlüsselwörter markieren sie zusätzlich mit dem Tag
+// "networking" und heben sie in die passende Kategorie, damit sie über den
+// Tag-Filter auffindbar bleiben, egal welche Kategorie die Quelle vergibt.
+const NETWORKING_KEYWORDS = /\b(afterwork|after-work|networking|netzwerk(?:abend|treffen)?|stammtisch|meet[- ]?up|mixer)\b/i;
+
+function applyNetworkingHeuristic(title, category, tags) {
+  if (!NETWORKING_KEYWORDS.test(title)) return { category, tags };
+  const withTag = tags.includes('networking') ? tags : [...tags, 'networking'];
+  return { category: 'Business & Networking', tags: withTag };
+}
+
 async function runSource(source) {
   const html = await fetchHtml(source.list_url, source.render_js, source.item_selector);
   const $ = cheerio.load(html);
@@ -149,16 +162,18 @@ async function runSource(source) {
 
       if (link && eventsRepo.findDuplicateByUrl(link)) { skipped++; continue; }
 
+      const { category, tags } = applyNetworkingHeuristic(title, source.category, defaultTags);
+
       eventsRepo.createEvent({
         title,
         description,
-        category: source.category,
+        category,
         start_date: startDate,
         location,
         url: link,
         source: source.name,
         status: 'pending',
-        tags: defaultTags,
+        tags,
       });
       inserted++;
     } catch (err) {
