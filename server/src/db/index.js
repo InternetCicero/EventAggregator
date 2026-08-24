@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS sources (
   description_selector TEXT,
   category TEXT NOT NULL DEFAULT 'Sonstiges',
   default_tags TEXT DEFAULT '',
+  render_js INTEGER NOT NULL DEFAULT 0,
   active INTEGER NOT NULL DEFAULT 1,
   last_run_at TEXT,
   last_run_status TEXT,
@@ -62,5 +63,10 @@ CREATE INDEX IF NOT EXISTS idx_events_status ON events(status);
 CREATE INDEX IF NOT EXISTS idx_events_start_date ON events(start_date);
 CREATE INDEX IF NOT EXISTS idx_events_category ON events(category);
 `);
+
+const sourceColumns = db.prepare("PRAGMA table_info(sources)").all().map((c) => c.name);
+if (!sourceColumns.includes('render_js')) {
+  db.exec('ALTER TABLE sources ADD COLUMN render_js INTEGER NOT NULL DEFAULT 0');
+}
 
 module.exports = db;

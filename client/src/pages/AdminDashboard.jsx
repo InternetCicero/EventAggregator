@@ -117,6 +117,7 @@ const emptySource = {
   description_selector: '',
   category: 'Sonstiges',
   default_tags: '',
+  render_js: false,
 };
 
 function SourceManager() {
@@ -224,6 +225,14 @@ function SourceManager() {
               />
             </label>
           </div>
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={form.render_js}
+              onChange={(e) => setForm({ ...form, render_js: e.target.checked })}
+            />
+            Seite lädt Events per JavaScript nach (Headless-Browser zum Rendern nutzen)
+          </label>
           <label>
             Item-Selector * (ein CSS-Selektor pro Event-Eintrag, z. B. ".event-item")
             <input

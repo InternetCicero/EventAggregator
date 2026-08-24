@@ -31,6 +31,17 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     }).then(handle),
+  extractFromLink: (url) =>
+    fetch(`${BASE}/events/extract-link`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+    }).then(handle),
+  extractFromImage: (file) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    return fetch(`${BASE}/events/extract-image`, { method: 'POST', body: formData }).then(handle);
+  },
 
   admin: {
     login: (user, pass) => {

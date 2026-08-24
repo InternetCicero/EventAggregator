@@ -12,6 +12,15 @@ const { runAllActiveSources } = require('./scraper/runSource');
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+// Sicherheitsnetz: ein einzelner fehlerhafter Hintergrund-Task (z. B. OCR-Worker)
+// soll den ganzen Server nicht abschießen.
+process.on('uncaughtException', (err) => {
+  console.error('[uncaughtException]', err);
+});
+process.on('unhandledRejection', (err) => {
+  console.error('[unhandledRejection]', err);
+});
+
 app.use(cors());
 app.use(express.json());
 

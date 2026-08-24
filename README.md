@@ -9,28 +9,35 @@ Website zum Sammeln und Anzeigen von lokalen Events aus mehreren Quellen — man
 
 ## Starten
 
-**Backend:**
+**Backend** (läuft auf http://localhost:4000):
 ```bash
 cd server
-cp .env.example .env   # ADMIN_USER/ADMIN_PASSWORD anpassen
+cp .env.example .env
 npm install
-npm run dev             # läuft auf http://localhost:4000
+npm run dev
 ```
+In `.env` anschließend `ADMIN_USER`/`ADMIN_PASSWORD` anpassen.
 
-**Frontend:**
+**Frontend** (läuft auf http://localhost:5173, proxied `/api` zu Port 4000):
 ```bash
 cd client
 npm install
-npm run dev              # läuft auf http://localhost:5173, proxied /api zu Port 4000
+npm run dev
 ```
+
+> Hinweis für Windows/`cmd.exe`: Befehle immer einzeln ausführen, keine Zeilen mit `#`-Kommentar dahinter copy-pasten — `cmd.exe` interpretiert `#` nicht als Kommentarzeichen und reicht den Rest der Zeile als zusätzliche Argumente durch, was zu einem `CACError: Unused args…` von Vite führt. In PowerShell/bash/zsh ist das kein Problem.
 
 ## Funktionen
 
 - **Übersicht** (`/`): Events gruppiert nach Datum, filterbar nach Kategorie, Tag, Zeitraum, Volltextsuche
-- **Event einreichen** (`/einreichen`): offenes Formular, landet als "pending" in der Moderationswarteschlange
+- **Event hinzufügen** (`/einreichen`): drei Wege, alle landen als "pending" in der Moderationswarteschlange
+  - **Link**: Seite wird abgerufen, schema.org-JSON-LD (`Event`) bzw. Open-Graph-Tags werden als Vorbefüllung genutzt — Nutzer prüft/ergänzt danach im Formular
+  - **Screenshot**: Bild wird per lokaler OCR (Tesseract, Deutsch+Englisch) in Text umgewandelt; der erkannte Text wird zur Übertragung ins Formular angezeigt (keine automatische Feldzuordnung, keine KI)
+  - **Formular**: alles manuell eintragen (Titel, Beschreibung, Kategorie, Datum, Ort, Anmeldungslink, Tags)
 - **Admin** (`/admin`, Basic Auth): Events freigeben/ablehnen/löschen, Scraper-Quellen anlegen/bearbeiten/löschen/manuell ausführen
-- **Automatisches Scraping**: pro Quelle werden CSS-Selektoren definiert (Listen-Element, Titel, Datum, Ort, Link, Beschreibung); ein Cron-Job läuft alle 6 Stunden (`server/src/index.js`) und ruft alle aktiven Quellen ab. Gescrapte Events landen ebenfalls zuerst als "pending".
+- **Automatisches Scraping**: pro Quelle werden CSS-Selektoren definiert (Listen-Element, Titel, Datum, Ort, Link, Beschreibung); optional per Checkbox mit Headless-Browser-Rendering (Playwright) für Seiten, die Events per JavaScript nachladen. Ein Cron-Job läuft alle 6 Stunden (`server/src/index.js`) und ruft alle aktiven Quellen ab. Gescrapte Events landen ebenfalls zuerst als "pending".
 - Duplikate werden über die Event-URL erkannt und übersprungen.
+- Die Link-Extraktion blockiert Anfragen an lokale/private Adressen (SSRF-Schutz).
 
 ## Eine Scraper-Quelle einrichten
 

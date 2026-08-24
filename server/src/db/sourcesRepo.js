@@ -5,11 +5,11 @@ function createSource(data) {
     INSERT INTO sources (
       name, base_url, list_url, item_selector, title_selector, date_selector,
       location_selector, link_selector, link_attr, description_selector,
-      category, default_tags, active
+      category, default_tags, render_js, active
     ) VALUES (
       @name, @base_url, @list_url, @item_selector, @title_selector, @date_selector,
       @location_selector, @link_selector, @link_attr, @description_selector,
-      @category, @default_tags, @active
+      @category, @default_tags, @render_js, @active
     )
   `);
   const info = stmt.run({
@@ -25,6 +25,7 @@ function createSource(data) {
     description_selector: data.description_selector || null,
     category: data.category || 'Sonstiges',
     default_tags: data.default_tags || '',
+    render_js: data.render_js ? 1 : 0,
     active: data.active === false ? 0 : 1,
   });
   return info.lastInsertRowid;
@@ -42,7 +43,7 @@ function updateSource(id, data) {
   const fields = [
     'name', 'base_url', 'list_url', 'item_selector', 'title_selector', 'date_selector',
     'location_selector', 'link_selector', 'link_attr', 'description_selector',
-    'category', 'default_tags', 'active',
+    'category', 'default_tags', 'render_js', 'active',
   ];
   const sets = fields.filter((f) => data[f] !== undefined).map((f) => `${f} = @${f}`);
   if (!sets.length) return;
