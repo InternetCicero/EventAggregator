@@ -62,6 +62,29 @@ function parseDateGuess(text) {
   return null;
 }
 
+// Manche Seiten kombinieren Datum und Ort in einem Textfeld, z. B.
+// "24. August 2026, Online" — wird als Ort-Fallback genutzt, wenn kein
+// eigener location_selector konfiguriert ist bzw. dieser nichts liefert.
+function extractTrailingLocation(text) {
+  if (!text) return null;
+  const patterns = [
+    /\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?/,
+    /\d{1,2}\.(\d{1,2})\.\d{2,4}(\s*,?\s*\d{1,2}:\d{2})?/,
+    /\d{1,2}\.?\s+[A-Za-zÄäÖöÜü]+\s+\d{4}/,
+    /[A-Za-z]+\s+\d{1,2},?\s+\d{4}/,
+  ];
+  let rest = text;
+  for (const p of patterns) {
+    const m = rest.match(p);
+    if (m) {
+      rest = rest.slice(m.index + m[0].length);
+      break;
+    }
+  }
+  rest = rest.replace(/^[\s,•\-–]+/, '').trim();
+  return rest || null;
+}
+
 async function fetchStaticHtml(url) {
   const res = await fetch(url, {
     headers: { 'User-Agent': 'EventAggregatorBot/1.0 (+local, non-commercial event listing)' },
@@ -144,9 +167,12 @@ async function runSource(source) {
       }
       const startDate = parseDateGuess(rawDate) || new Date().toISOString().slice(0, 16);
 
-      const location = source.location_selector
+      let location = source.location_selector
         ? cleanText($el.find(source.location_selector).first())
         : null;
+      if (!location && rawDate) {
+        location = extractTrailingLocation(rawDate);
+      }
 
       let link = null;
       if (source.link_selector) {
