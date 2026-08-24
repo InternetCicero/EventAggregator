@@ -1,0 +1,19 @@
+[Unit]
+Description=EventAggregator Backend
+After=network.target
+
+[Service]
+Type=simple
+User=eventaggregator
+WorkingDirectory=/opt/eventaggregator/server
+ExecStart=/usr/bin/node src/index.js
+Restart=on-failure
+RestartSec=5
+EnvironmentFile=/opt/eventaggregator/server/.env
+# 1GB-RAM-VM: Chromium (Playwright) kann viel Speicher ziehen, harte Grenze
+# verhindert, dass ein außer Kontrolle geratener Scrape-Lauf den ganzen
+# Server (inkl. SSH) durch OOM lahmlegt.
+MemoryMax=700M
+
+[Install]
+WantedBy=multi-user.target

@@ -39,6 +39,11 @@ npm run dev
 - Duplikate werden über die Event-URL erkannt und übersprungen.
 - Die Link-Extraktion blockiert Anfragen an lokale/private Adressen (SSRF-Schutz).
 
+## Deployment
+
+Anleitung für dauerhaft kostenloses Hosting auf einer Google-Cloud-`e2-micro`-VM
+(Always-Free-Tier): siehe [deploy/DEPLOY.md](deploy/DEPLOY.md).
+
 ## Eine Scraper-Quelle einrichten
 
 Im Admin-Bereich unter "Automatische Quellen" → "+ Neue Quelle":
