@@ -10,13 +10,14 @@ export default function App() {
       <header className="app-header">
         <div className="app-header-inner">
           <NavLink to="/" className="brand">
-            📅 EventAggregator
+            <span className="brand-mark">EA</span>
+            <span className="brand-word">EventAggregator</span>
           </NavLink>
           <nav className="app-nav">
             <NavLink to="/" end>
               Übersicht
             </NavLink>
-            <NavLink to="/einreichen">Event einreichen</NavLink>
+            <NavLink to="/einreichen">Event hinzufügen</NavLink>
             <NavLink to="/admin">Admin</NavLink>
           </nav>
         </div>

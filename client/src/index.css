@@ -1,12 +1,22 @@
 :root {
-  --bg: #f6f5f2;
+  /* Brand: Navy / Off-White / Kupfer, 70/20/10-Regel */
+  --navy: #10233f;
+  --navy-tint: rgba(16, 35, 63, 0.08);
+  --offwhite: #f7f5f0;
+  --copper: #c08552;
+  --copper-hover: #a66f41;
+  --gray: #6b6b6b;
+
+  --bg: var(--offwhite);
   --surface: #ffffff;
-  --border: #e4e1da;
-  --text: #22201c;
-  --text-muted: #6b6860;
-  --accent: #d9622b;
-  --accent-hover: #b94f20;
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --border: rgba(16, 35, 63, 0.14);
+  --text: #1c1c1a;
+  --text-muted: var(--gray);
+  --heading: var(--navy);
+  --accent: var(--copper);
+  --accent-hover: var(--copper-hover);
+
+  font-family: 'Noto Serif', Georgia, 'Iowan Old Style', 'Times New Roman', serif;
 }
 
 * {
@@ -19,8 +29,16 @@ body {
   color: var(--text);
 }
 
+h1,
+h2,
+h3,
+h4 {
+  color: var(--heading);
+  font-weight: 700;
+}
+
 a {
-  color: var(--accent);
+  color: var(--copper);
 }
 
 button {

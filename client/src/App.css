@@ -23,27 +23,47 @@
 }
 
 .brand {
-  font-weight: 700;
-  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   text-decoration: none;
-  color: var(--text);
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  background: var(--navy);
+  color: var(--offwhite);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+}
+
+.brand-word {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--heading);
 }
 
 .app-nav {
   display: flex;
-  gap: 18px;
+  gap: 22px;
 }
 
 .app-nav a {
   text-decoration: none;
   color: var(--text-muted);
-  font-weight: 500;
-  padding: 6px 4px;
+  font-weight: 600;
+  padding: 6px 2px;
   border-bottom: 2px solid transparent;
 }
 
 .app-nav a.active {
-  color: var(--text);
+  color: var(--heading);
   border-bottom-color: var(--accent);
 }
 
@@ -60,6 +80,7 @@
   padding: 20px;
   color: var(--text-muted);
   font-size: 0.85rem;
+  border-top: 1px solid var(--border);
 }
 
 /* Filters */
@@ -71,16 +92,19 @@
   margin-bottom: 24px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 4px;
   padding: 14px;
 }
 
 .filters input,
 .filters select {
   padding: 8px 10px;
-  border-radius: 6px;
+  border-radius: 4px;
   border: 1px solid var(--border);
   font-size: 0.9rem;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--surface);
 }
 
 .filters label {
@@ -95,7 +119,7 @@
 .day-heading {
   font-size: 1.1rem;
   margin: 28px 0 12px;
-  color: var(--text);
+  color: var(--heading);
   border-bottom: 1px solid var(--border);
   padding-bottom: 6px;
 }
@@ -109,8 +133,8 @@
 .event-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px;
+  border-radius: 4px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -119,22 +143,24 @@
 .event-card-category {
   display: inline-block;
   align-self: flex-start;
-  color: white;
-  font-size: 0.72rem;
+  color: var(--navy);
+  background: var(--navy-tint);
+  font-size: 0.7rem;
   font-weight: 600;
   padding: 3px 9px;
-  border-radius: 999px;
+  border-radius: 3px;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.05em;
 }
 
 .event-card-title {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
+  line-height: 1.3;
 }
 
 .event-card-title a {
-  color: var(--text);
+  color: var(--heading);
   text-decoration: none;
 }
 
@@ -145,15 +171,17 @@
 .event-card-meta {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
   font-size: 0.85rem;
   color: var(--text-muted);
+  font-style: italic;
 }
 
 .event-card-desc {
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   color: var(--text);
   margin: 0;
+  line-height: 1.5;
 }
 
 .event-card-tags {
@@ -163,9 +191,9 @@
 }
 
 .tag-pill {
-  background: var(--bg);
+  background: transparent;
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: 3px;
   padding: 2px 9px;
   font-size: 0.75rem;
   color: var(--text-muted);
@@ -173,21 +201,23 @@
 
 .event-card-source {
   margin-top: auto;
+  padding-top: 6px;
   font-size: 0.72rem;
   color: var(--text-muted);
-  opacity: 0.8;
+  border-top: 1px solid var(--border);
 }
 
 .hint {
   color: var(--text-muted);
+  font-style: italic;
 }
 
 .error {
-  color: #c0392b;
+  color: #9b3b2e;
 }
 
 .success {
-  color: #1a7a3c;
+  color: #2f6b45;
 }
 
 /* Submit event: mode switch */
@@ -205,9 +235,9 @@
 }
 
 .mode-btn.active {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
+  background: var(--navy);
+  color: var(--offwhite);
+  border-color: var(--navy);
 }
 
 .mode-hint {
@@ -217,7 +247,7 @@
 .mode-panel {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 4px;
   padding: 16px;
   max-width: 640px;
   margin-bottom: 20px;
@@ -234,9 +264,10 @@
 .link-input-row input {
   flex: 1;
   padding: 9px 10px;
-  border-radius: 6px;
+  border-radius: 4px;
   border: 1px solid var(--border);
   font-size: 0.95rem;
+  font-family: inherit;
 }
 
 .ocr-result {
@@ -249,7 +280,7 @@
 .ocr-preview {
   max-width: 180px;
   max-height: 180px;
-  border-radius: 8px;
+  border-radius: 4px;
   border: 1px solid var(--border);
   object-fit: cover;
 }
@@ -262,7 +293,7 @@
 .ocr-text-block textarea {
   width: 100%;
   padding: 9px 10px;
-  border-radius: 6px;
+  border-radius: 4px;
   border: 1px solid var(--border);
   font-family: inherit;
   font-size: 0.85rem;
@@ -279,7 +310,7 @@
   gap: 14px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 4px;
   padding: 20px;
   max-width: 640px;
 }
@@ -306,11 +337,12 @@
 .source-form input,
 .source-form select {
   padding: 9px 10px;
-  border-radius: 6px;
+  border-radius: 4px;
   border: 1px solid var(--border);
   font-size: 0.95rem;
   color: var(--text);
   font-family: inherit;
+  background: var(--surface);
 }
 
 .form-row {
@@ -330,12 +362,13 @@
 
 button {
   background: var(--accent);
-  color: white;
+  color: var(--offwhite);
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   padding: 10px 16px;
   font-weight: 600;
   font-size: 0.9rem;
+  font-family: inherit;
 }
 
 button:hover {
@@ -349,20 +382,20 @@ button:disabled {
 
 .btn-ghost {
   background: transparent;
-  color: var(--text);
+  color: var(--heading);
   border: 1px solid var(--border);
 }
 
 .btn-ghost:hover {
-  background: var(--bg);
+  background: var(--navy-tint);
 }
 
 .btn-danger {
-  background: #c0392b;
+  background: #9b3b2e;
 }
 
 .btn-danger:hover {
-  background: #a12f22;
+  background: #7f2f24;
 }
 
 /* Admin */
@@ -388,7 +421,7 @@ button:disabled {
   border-collapse: collapse;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 4px;
   overflow: hidden;
 }
 
@@ -401,9 +434,9 @@ button:disabled {
 }
 
 .admin-table th {
-  background: var(--bg);
-  color: var(--text-muted);
-  font-weight: 600;
+  background: var(--navy-tint);
+  color: var(--heading);
+  font-weight: 700;
 }
 
 .admin-actions {

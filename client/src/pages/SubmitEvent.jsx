@@ -14,9 +14,9 @@ const initialForm = {
 };
 
 const MODES = [
-  { key: 'link', label: '🔗 Link', hint: 'Events-Seite verlinken, wir versuchen die Daten automatisch zu lesen' },
-  { key: 'screenshot', label: '🖼️ Screenshot', hint: 'Bild hochladen, Text wird erkannt (OCR) — du überträgst die Werte ins Formular' },
-  { key: 'form', label: '📝 Formular', hint: 'Alles direkt von Hand eintragen' },
+  { key: 'link', label: 'Link', hint: 'Events-Seite verlinken — die Daten werden automatisch ausgelesen' },
+  { key: 'screenshot', label: 'Screenshot', hint: 'Bild hochladen, Text wird per OCR erkannt und zur Übertragung in das Formular angezeigt' },
+  { key: 'form', label: 'Formular', hint: 'Alle Angaben direkt eintragen' },
 ];
 
 function EventFields({ form, update, categories }) {
@@ -82,7 +82,7 @@ function EventFields({ form, update, categories }) {
       </label>
 
       <label>
-        Dein Name (optional)
+        Ihr Name (optional)
         <input value={form.submitter_name} onChange={(e) => update('submitter_name', e.target.value)} />
       </label>
     </>
@@ -199,7 +199,7 @@ export default function SubmitEvent() {
     <div className="submit-page">
       <h1>Event hinzufügen</h1>
       <p className="hint">
-        Dein Event wird nach kurzer Prüfung freigeschaltet und erscheint dann in der Übersicht.
+        Das Event wird nach kurzer Prüfung freigeschaltet und erscheint anschließend in der Übersicht.
       </p>
 
       <div className="mode-switch">
@@ -263,7 +263,7 @@ export default function SubmitEvent() {
         </button>
 
         {status === 'success' && (
-          <p className="success">Danke! Dein Event wurde eingereicht und wartet auf Freigabe.</p>
+          <p className="success">Vielen Dank. Das Event wurde eingereicht und wartet auf Freigabe.</p>
         )}
         {status === 'error' && <p className="error">Fehler: {errorMsg}</p>}
       </form>
