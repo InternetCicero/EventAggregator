@@ -33,8 +33,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
+  min-width: 30px;
   height: 30px;
+  padding: 0 6px;
   border-radius: 6px;
   background: var(--navy);
   color: var(--offwhite);

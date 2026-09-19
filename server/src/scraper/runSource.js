@@ -87,7 +87,7 @@ function extractTrailingLocation(text) {
 
 async function fetchStaticHtml(url) {
   const res = await fetch(url, {
-    headers: { 'User-Agent': 'EventAggregatorBot/1.0 (+local, non-commercial event listing)' },
+    headers: { 'User-Agent': 'LaurenzEventVerteilerBot/1.0 (+local, non-commercial event listing)' },
   });
   if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${url}`);
   return res.text();
@@ -98,7 +98,7 @@ async function fetchRenderedHtml(url, itemSelector) {
   const browser = await chromium.launch();
   try {
     const page = await browser.newPage({
-      userAgent: 'EventAggregatorBot/1.0 (+local, non-commercial event listing)',
+      userAgent: 'LaurenzEventVerteilerBot/1.0 (+local, non-commercial event listing)',
     });
     // 'networkidle' never fires on pages with persistent background activity
     // (analytics beacons, polling, chat widgets), so load the DOM and then wait

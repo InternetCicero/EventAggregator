@@ -1,4 +1,4 @@
-# EventAggregator
+# Laurenz Event Verteiler
 
 Website zum Sammeln und Anzeigen von lokalen Events aus mehreren Quellen — manuell eingereicht oder automatisch von konfigurierten Websites gescrapt. Kein API-Key, keine KI beteiligt.
 

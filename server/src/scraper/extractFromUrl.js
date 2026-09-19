@@ -87,7 +87,7 @@ async function extractFromUrl(rawUrl) {
   const parsed = await assertPublicUrl(rawUrl);
 
   const res = await fetch(parsed.toString(), {
-    headers: { 'User-Agent': 'EventAggregatorBot/1.0 (+local, non-commercial event listing)' },
+    headers: { 'User-Agent': 'LaurenzEventVerteilerBot/1.0 (+local, non-commercial event listing)' },
     redirect: 'follow',
   });
   if (!res.ok) throw new Error(`Seite konnte nicht geladen werden (HTTP ${res.status})`);

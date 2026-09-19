@@ -1,5 +1,5 @@
 [Unit]
-Description=EventAggregator Backend
+Description=Laurenz Event Verteiler Backend
 After=network.target
 
 [Service]
