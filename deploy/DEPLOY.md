@@ -78,7 +78,7 @@ sudo bash /opt/eventaggregator/deploy/update.sh
 Auf der VM (einmalig, nach dem ersten Setup):
 
 ```bash
-sudo git -C /opt/eventaggregator pull
+sudo -u eventaggregator git -C /opt/eventaggregator pull
 ```
 
 ```bash
