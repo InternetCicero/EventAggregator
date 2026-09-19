@@ -73,6 +73,72 @@ Wenn im Repo etwas Neues gepusht wurde:
 sudo bash /opt/eventaggregator/deploy/update.sh
 ```
 
+## 7. Tägliches Backup einrichten
+
+Auf der VM (einmalig, nach dem ersten Setup):
+
+```bash
+sudo git -C /opt/eventaggregator pull
+```
+
+```bash
+sudo bash /opt/eventaggregator/deploy/install-backup.sh
+```
+
+Das installiert `sqlite3`, legt einen Cron-Job an (täglich 03:30 Uhr) und macht direkt einen Testlauf.
+Die letzten 14 Sicherungen liegen komprimiert in `/var/backups/eventaggregator/`.
+
+Eine Sicherung auf den eigenen Mac holen (auf dem Mac ausführen):
+
+```bash
+gcloud compute scp "event-aggregator:/var/backups/eventaggregator/*.gz" ~/Downloads/ --zone=us-central1-a --project=n8n-kalender-498513
+```
+
+Wiederherstellen (auf der VM, `DATEI` durch den Dateinamen ersetzen):
+
+```bash
+sudo systemctl stop eventaggregator && sudo gunzip -c /var/backups/eventaggregator/DATEI.db.gz > /tmp/restore.db && sudo cp /tmp/restore.db /opt/eventaggregator/server/data/events.db && sudo chown eventaggregator:eventaggregator /opt/eventaggregator/server/data/events.db && sudo rm -f /opt/eventaggregator/server/data/events.db-wal /opt/eventaggregator/server/data/events.db-shm && sudo systemctl start eventaggregator
+```
+
+> Die Backups liegen auf derselben VM. Fällt die VM komplett aus, sind sie mit weg —
+> ziehen Sie deshalb gelegentlich eine Kopie auf den eigenen Rechner (Befehl oben).
+
+## 8. Automatisches Deployment per GitHub Actions
+
+Bei jedem Push auf `main` prüft GitHub, ob das Frontend baut, verbindet sich dann per SSH mit der VM
+und führt `deploy/update.sh` aus (`git pull`, Abhängigkeiten, Build, Neustart, Health-Check).
+Der Workflow liegt in `.github/workflows/deploy.yml`, ein manueller Start ist unter *Actions → Deploy → Run workflow* möglich.
+
+**Einmalige Einrichtung:**
+
+1. Auf dem Mac ein eigenes Schlüsselpaar nur für das Deployment erzeugen (ohne Passphrase, `Enter` drücken):
+
+```bash
+ssh-keygen -t ed25519 -f ~/.ssh/eventaggregator_deploy -C "github-actions-deploy"
+```
+
+2. Den **öffentlichen** Schlüssel anzeigen und kopieren:
+
+```bash
+cat ~/.ssh/eventaggregator_deploy.pub
+```
+
+3. Auf der VM (Browser-SSH) an die erlaubten Schlüssel des Benutzers anhängen (`SCHLUESSEL` durch die kopierte Zeile ersetzen, in einfachen Anführungszeichen lassen):
+
+```bash
+echo 'SCHLUESSEL' >> ~/.ssh/authorized_keys
+```
+
+4. Im GitHub-Repo unter *Settings → Secrets and variables → Actions → New repository secret* drei Secrets anlegen:
+
+| Name | Wert |
+|---|---|
+| `VM_HOST` | externe IP der VM (oder `student.laurenz-polanski.de`) |
+| `VM_USER` | der Benutzername auf der VM (der Teil vor `@` im SSH-Prompt, z. B. `laurip`) |
+| `VM_SSH_KEY` | Inhalt der **privaten** Datei: `cat ~/.ssh/eventaggregator_deploy` (komplett inkl. `BEGIN`/`END`-Zeilen) |
+
+Der private Schlüssel gehört nur in das GitHub-Secret, niemals ins Repo. Der Benutzer braucht `sudo`-Rechte ohne Passwort; das ist auf Google-Cloud-VMs für den SSH-Benutzer Standard.
+
 ## Bekannte Grenzen dieser Konfiguration
 
 - **1GB RAM**: Chromium (Playwright) läuft, aber nicht mehrere Scrape-Läufe
