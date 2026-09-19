@@ -42,9 +42,12 @@ id -u "$APP_USER" &>/dev/null || useradd -m -s /usr/sbin/nologin "$APP_USER"
 
 echo "==> Repository klonen/aktualisieren"
 if [ -d "$APP_DIR/.git" ]; then
-  git -C "$APP_DIR" pull
+  chown -R "$APP_USER":"$APP_USER" "$APP_DIR"
+  sudo -u "$APP_USER" git -C "$APP_DIR" pull
 else
   git clone "$REPO_URL" "$APP_DIR"
+  # Rechte sofort setzen: npm/Playwright laufen unten als $APP_USER
+  chown -R "$APP_USER":"$APP_USER" "$APP_DIR"
 fi
 
 echo "==> Backend-Abhängigkeiten installieren"
@@ -62,11 +65,8 @@ fi
 
 echo "==> Frontend bauen"
 cd "$APP_DIR/client"
-npm ci
-npm run build
-
-echo "==> Verzeichnisrechte setzen"
-chown -R "$APP_USER":"$APP_USER" "$APP_DIR"
+sudo -u "$APP_USER" npm ci
+sudo -u "$APP_USER" npm run build
 
 echo "==> systemd-Service einrichten"
 cp "$APP_DIR/deploy/eventaggregator.service" /etc/systemd/system/eventaggregator.service
