@@ -10,7 +10,7 @@ export default function App() {
       <header className="app-header">
         <div className="app-header-inner">
           <NavLink to="/" className="brand">
-            <span className="brand-mark">LEV</span>
+            <img className="brand-logo" src="/logo.png" alt="" width="44" height="44" />
             <span className="brand-word">Laurenz Event Verteiler</span>
           </NavLink>
           <nav className="app-nav">
