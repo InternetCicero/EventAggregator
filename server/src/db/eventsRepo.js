@@ -105,6 +105,16 @@ function findDuplicateByUrl(url) {
   return db.prepare('SELECT id FROM events WHERE url = ?').get(url);
 }
 
+// Manche Quellen verlinken mehrere unterschiedliche Termine (z. B. dieselbe
+// Roadshow in verschiedenen Städten) auf dieselbe Detailseite. Ein reiner
+// URL-Abgleich würde dann alle bis auf den ersten Termin als Duplikat
+// verwerfen. Zusätzlich zum Titel abzugleichen behebt das, ohne echte
+// Duplikate (gleiche URL, gleicher Titel) durchzulassen.
+function findDuplicateByUrlAndTitle(url, title) {
+  if (!url) return null;
+  return db.prepare('SELECT id FROM events WHERE url = ? AND title = ?').get(url, title);
+}
+
 function listAllTags() {
   return db.prepare('SELECT name FROM tags ORDER BY name ASC').all().map((r) => r.name);
 }
@@ -117,5 +127,6 @@ module.exports = {
   deleteEvent,
   setEventTags,
   findDuplicateByUrl,
+  findDuplicateByUrlAndTitle,
   listAllTags,
 };

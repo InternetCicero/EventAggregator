@@ -59,6 +59,27 @@ function parseDateGuess(text) {
     if (month) return `${y}-${month}-${d.padStart(2, '0')}T00:00`;
   }
 
+  // Manche Kalender zeigen pro Karte nur Tag + Monat ohne Jahr (z. B. "30 Sep",
+  // typischerweise aus zwei separaten Elementen wie date-day/date-month
+  // zusammengesetzt). Das Jahr wird auf das aktuelle Jahr geraten; liegt das
+  // Ergebnis mehr als ein paar Tage in der Vergangenheit, wird angenommen,
+  // dass sich die Angabe schon aufs nächste Jahr bezieht.
+  // Nicht verankert (kein ^…$), damit auch mehrtägige Bereiche wie
+  // "20 Okt - 21 Okt" erkannt werden — es zählt dann der erste (Start-)Termin.
+  const dayMonthNoYear = cleaned.match(/(\d{1,2})\.?\s+([A-Za-zÄäÖöÜü]+)\b/);
+  if (dayMonthNoYear) {
+    const [, d, monthName] = dayMonthNoYear;
+    const month = MONTHS[monthName.toLowerCase()];
+    if (month) {
+      const now = new Date();
+      let year = now.getFullYear();
+      const guess = new Date(`${year}-${month}-${d.padStart(2, '0')}T00:00:00`);
+      const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
+      if (!Number.isNaN(guess.getTime()) && guess < threeDaysAgo) year += 1;
+      return `${year}-${month}-${d.padStart(2, '0')}T00:00`;
+    }
+  }
+
   return null;
 }
 
@@ -186,7 +207,7 @@ async function runSource(source) {
         ? cleanText($el.find(source.description_selector).first())
         : null;
 
-      if (link && eventsRepo.findDuplicateByUrl(link)) { skipped++; continue; }
+      if (link && eventsRepo.findDuplicateByUrlAndTitle(link, title)) { skipped++; continue; }
 
       const { category, tags } = applyNetworkingHeuristic(title, source.category, defaultTags);
 
