@@ -43,8 +43,9 @@ function parseDateGuess(text) {
     return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}T${hh}:${mm}`;
   }
 
-  // "29. August 2026" or "29 August 2026"
-  const deNamed = cleaned.match(/(\d{1,2})\.?\s+([A-Za-zÄäÖöÜü]+)\s+(\d{4})/);
+  // "29. August 2026", "29 August 2026" oder "29. August, 2026" (Komma vor
+  // dem Jahr, z. B. Phenom-People-Widgets: "22. Oktober, 2025")
+  const deNamed = cleaned.match(/(\d{1,2})\.?\s+([A-Za-zÄäÖöÜü]+),?\s+(\d{4})/);
   if (deNamed) {
     const [, d, monthName, y] = deNamed;
     const month = MONTHS[monthName.toLowerCase()];
