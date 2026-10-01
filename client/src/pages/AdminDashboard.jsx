@@ -34,13 +34,22 @@ function LoginForm({ onLogin }) {
   );
 }
 
+const BULK_LABELS = {
+  approve: 'freigeben',
+  reject: 'ablehnen',
+  delete: 'löschen',
+};
+
 function PendingQueue() {
   const [status, setStatus] = useState('pending');
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState(() => new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
 
   function reload() {
     setLoading(true);
+    setSelected(new Set());
     api.admin
       .getEvents(status)
       .then(setEvents)
@@ -48,6 +57,38 @@ function PendingQueue() {
   }
 
   useEffect(reload, [status]);
+
+  const allSelected = events.length > 0 && selected.size === events.length;
+  const someSelected = selected.size > 0 && !allSelected;
+
+  function toggleOne(id) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAll() {
+    setSelected(allSelected ? new Set() : new Set(events.map((e) => e.id)));
+  }
+
+  async function runBulk(action) {
+    if (selected.size === 0) return;
+    const label = BULK_LABELS[action];
+    if (action === 'delete' && !confirm(`${selected.size} Event(s) wirklich löschen?`)) return;
+
+    setBulkBusy(true);
+    try {
+      await api.admin.bulkAction([...selected], action);
+      reload();
+    } catch (err) {
+      alert(`Sammel-Aktion "${label}" fehlgeschlagen: ${err.message}`);
+    } finally {
+      setBulkBusy(false);
+    }
+  }
 
   return (
     <section>
@@ -59,11 +100,50 @@ function PendingQueue() {
           <option value="rejected">Abgelehnt</option>
         </select>
       </div>
+
+      {events.length > 0 && (
+        <div className="bulk-bar">
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={allSelected}
+              ref={(el) => el && (el.indeterminate = someSelected)}
+              onChange={toggleAll}
+            />
+            {selected.size > 0 ? `${selected.size} ausgewählt` : 'Alle auswählen'}
+          </label>
+          <div className="bulk-bar-actions">
+            {status !== 'approved' && (
+              <button disabled={selected.size === 0 || bulkBusy} onClick={() => runBulk('approve')}>
+                Ausgewählte freigeben
+              </button>
+            )}
+            {status !== 'rejected' && (
+              <button
+                className="btn-ghost"
+                disabled={selected.size === 0 || bulkBusy}
+                onClick={() => runBulk('reject')}
+              >
+                Ausgewählte ablehnen
+              </button>
+            )}
+            <button
+              className="btn-danger"
+              disabled={selected.size === 0 || bulkBusy}
+              onClick={() => runBulk('delete')}
+            >
+              Ausgewählte löschen
+            </button>
+          </div>
+        </div>
+      )}
+
       {loading && <p className="hint">Lädt…</p>}
       {!loading && events.length === 0 && <p className="hint">Keine Events in diesem Status.</p>}
       <table className="admin-table">
         <thead>
           <tr>
+            <th className="admin-table-checkbox"></th>
             <th>Titel</th>
             <th>Kategorie</th>
             <th>Start</th>
@@ -73,7 +153,10 @@ function PendingQueue() {
         </thead>
         <tbody>
           {events.map((e) => (
-            <tr key={e.id}>
+            <tr key={e.id} className={selected.has(e.id) ? 'is-selected' : undefined}>
+              <td className="admin-table-checkbox">
+                <input type="checkbox" checked={selected.has(e.id)} onChange={() => toggleOne(e.id)} />
+              </td>
               <td>{e.title}</td>
               <td>{e.category}</td>
               <td>{e.start_date}</td>

@@ -14,6 +14,31 @@ router.get('/events', (req, res) => {
   res.json(events);
 });
 
+const BULK_ACTIONS = {
+  approve: (ids) => eventsRepo.bulkUpdateStatus(ids, 'approved'),
+  reject: (ids) => eventsRepo.bulkUpdateStatus(ids, 'rejected'),
+  delete: (ids) => eventsRepo.bulkDelete(ids),
+};
+
+router.post('/events/bulk', (req, res) => {
+  const { ids, action } = req.body;
+
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return res.status(400).json({ error: 'ids muss ein nicht-leeres Array sein' });
+  }
+  const numericIds = ids.map(Number).filter(Number.isInteger);
+  if (numericIds.length !== ids.length) {
+    return res.status(400).json({ error: 'ids enthält ungültige Werte' });
+  }
+  const handler = BULK_ACTIONS[action];
+  if (!handler) {
+    return res.status(400).json({ error: `action muss eine von ${Object.keys(BULK_ACTIONS).join(', ')} sein` });
+  }
+
+  const affected = handler(numericIds);
+  res.json({ ok: true, affected });
+});
+
 router.post('/events/:id/approve', (req, res) => {
   eventsRepo.updateEventStatus(req.params.id, 'approved');
   res.json({ ok: true });

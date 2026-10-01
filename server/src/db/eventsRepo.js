@@ -100,6 +100,30 @@ function deleteEvent(id) {
   db.prepare('DELETE FROM events WHERE id = ?').run(id);
 }
 
+// Für die Mehrfachauswahl im Admin-Bereich: alle IDs in einer Transaktion
+// statt vieler einzelner Requests. Gibt zurück, wie viele Zeilen tatsächlich
+// getroffen wurden (IDs, die es nicht mehr gibt, werden stillschweigend
+// übersprungen statt einen Fehler zu werfen).
+function bulkUpdateStatus(ids, status) {
+  const stmt = db.prepare("UPDATE events SET status = ?, updated_at = datetime('now') WHERE id = ?");
+  const run = db.transaction((idList) => {
+    let affected = 0;
+    for (const id of idList) affected += stmt.run(status, id).changes;
+    return affected;
+  });
+  return run(ids);
+}
+
+function bulkDelete(ids) {
+  const stmt = db.prepare('DELETE FROM events WHERE id = ?');
+  const run = db.transaction((idList) => {
+    let affected = 0;
+    for (const id of idList) affected += stmt.run(id).changes;
+    return affected;
+  });
+  return run(ids);
+}
+
 function findDuplicateByUrl(url) {
   if (!url) return null;
   return db.prepare('SELECT id FROM events WHERE url = ?').get(url);
@@ -129,4 +153,6 @@ module.exports = {
   findDuplicateByUrl,
   findDuplicateByUrlAndTitle,
   listAllTags,
+  bulkUpdateStatus,
+  bulkDelete,
 };

@@ -65,6 +65,12 @@ export const api = {
       fetch(`${BASE}/admin/events/${id}/reject`, { method: 'POST', headers: authHeader() }).then(handle),
     deleteEvent: (id) =>
       fetch(`${BASE}/admin/events/${id}`, { method: 'DELETE', headers: authHeader() }).then(handle),
+    bulkAction: (ids, action) =>
+      fetch(`${BASE}/admin/events/bulk`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeader() },
+        body: JSON.stringify({ ids, action }),
+      }).then(handle),
 
     getSources: () => fetch(`${BASE}/admin/sources`, { headers: authHeader() }).then(handle),
     createSource: (data) =>

@@ -61,6 +61,37 @@ test('updateEventStatus + deleteEvent', () => {
   assert.equal(eventsRepo.getEvent(id), null);
 });
 
+test('bulkUpdateStatus: setzt den Status mehrerer Events in einem Rutsch', () => {
+  const id1 = eventsRepo.createEvent(makeEvent({ title: 'A', status: 'pending' }));
+  const id2 = eventsRepo.createEvent(makeEvent({ title: 'B', status: 'pending' }));
+  const id3 = eventsRepo.createEvent(makeEvent({ title: 'C', status: 'pending' }));
+
+  const affected = eventsRepo.bulkUpdateStatus([id1, id2], 'approved');
+
+  assert.equal(affected, 2);
+  assert.equal(eventsRepo.getEvent(id1).status, 'approved');
+  assert.equal(eventsRepo.getEvent(id2).status, 'approved');
+  assert.equal(eventsRepo.getEvent(id3).status, 'pending'); // nicht in der Auswahl
+});
+
+test('bulkUpdateStatus: nicht existierende IDs werden übersprungen statt zu scheitern', () => {
+  const id = eventsRepo.createEvent(makeEvent({ status: 'pending' }));
+  const affected = eventsRepo.bulkUpdateStatus([id, 999999], 'rejected');
+  assert.equal(affected, 1);
+  assert.equal(eventsRepo.getEvent(id).status, 'rejected');
+});
+
+test('bulkDelete: löscht mehrere Events in einem Rutsch', () => {
+  const id1 = eventsRepo.createEvent(makeEvent());
+  const id2 = eventsRepo.createEvent(makeEvent());
+
+  const affected = eventsRepo.bulkDelete([id1, id2]);
+
+  assert.equal(affected, 2);
+  assert.equal(eventsRepo.getEvent(id1), null);
+  assert.equal(eventsRepo.getEvent(id2), null);
+});
+
 test('findDuplicateByUrlAndTitle: erkennt nur exakt gleiche URL+Titel-Kombination', () => {
   const url = 'https://example.com/event/roadshow';
   eventsRepo.createEvent(makeEvent({ title: 'Roadshow Berlin', url }));

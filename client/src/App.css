@@ -409,6 +409,33 @@ button:disabled {
   gap: 8px;
 }
 
+.bulk-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--navy-tint);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+}
+
+.bulk-bar .checkbox-label {
+  color: var(--heading);
+  font-weight: 600;
+}
+
+.bulk-bar-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.bulk-bar-actions button {
+  padding: 7px 12px;
+  font-size: 0.85rem;
+}
+
 .admin-table {
   width: 100%;
   border-collapse: collapse;
@@ -430,6 +457,15 @@ button:disabled {
   background: var(--navy-tint);
   color: var(--heading);
   font-weight: 700;
+}
+
+.admin-table-checkbox {
+  width: 32px;
+  padding-right: 0 !important;
+}
+
+.admin-table tr.is-selected td {
+  background: var(--navy-tint);
 }
 
 .admin-actions {
