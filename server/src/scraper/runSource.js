@@ -192,7 +192,12 @@ async function runSource(source) {
       let location = source.location_selector
         ? cleanText($el.find(source.location_selector).first())
         : null;
-      if (!location && rawDate) {
+      // Der Ort-aus-Datum-Fallback gilt nur, wenn die Quelle gar keinen
+      // eigenen location_selector hat (Datum und Ort stehen dann im selben
+      // Textfeld, siehe SQUEAKER). Hat die Quelle einen location_selector,
+      // der bei einzelnen Karten nur leer bleibt (z. B. fehlendes "Ort"-Feld),
+      // darf das Datum nicht versehentlich als Ort landen.
+      if (!location && !source.location_selector && rawDate) {
         location = extractTrailingLocation(rawDate);
       }
 
