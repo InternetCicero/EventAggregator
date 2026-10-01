@@ -137,4 +137,12 @@ async function extractFromUrl(rawUrl) {
   return result;
 }
 
-module.exports = { extractFromUrl };
+module.exports = {
+  extractFromUrl,
+  // Für Unit-Tests: reine Funktionen ohne Netzwerkzugriff.
+  isPrivateAddress,
+  assertPublicUrl,
+  pickEventNode,
+  locationToString,
+  toDatetimeLocal,
+};

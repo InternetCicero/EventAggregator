@@ -2,10 +2,16 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
-const dataDir = path.join(__dirname, '..', '..', 'data');
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+// Tests setzen EVENTS_DB_PATH auf eine temporäre Datei (z.B. ":memory:"),
+// damit sie nicht die echte data/events.db anfassen. Ohne die Variable
+// verhält sich das Modul wie bisher.
+const dbPath = process.env.EVENTS_DB_PATH || path.join(__dirname, '..', '..', 'data', 'events.db');
+if (dbPath !== ':memory:') {
+  const dataDir = path.dirname(dbPath);
+  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+}
 
-const db = new Database(path.join(dataDir, 'events.db'));
+const db = new Database(dbPath);
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 

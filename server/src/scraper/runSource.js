@@ -26,7 +26,9 @@ function resolveUrl(base, maybeRelative) {
   }
 }
 
-function parseDateGuess(text) {
+// `now` ist für Tests injizierbar (Tag/Monat-ohne-Jahr-Logik hängt vom
+// aktuellen Datum ab); im Normalbetrieb bleibt es beim echten "jetzt".
+function parseDateGuess(text, now = new Date()) {
   if (!text) return null;
   const cleaned = text.trim();
 
@@ -72,7 +74,6 @@ function parseDateGuess(text) {
     const [, d, monthName] = dayMonthNoYear;
     const month = MONTHS[monthName.toLowerCase()];
     if (month) {
-      const now = new Date();
       let year = now.getFullYear();
       const guess = new Date(`${year}-${month}-${d.padStart(2, '0')}T00:00:00`);
       const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
@@ -253,4 +254,12 @@ async function runAllActiveSources() {
   return results;
 }
 
-module.exports = { runSource, runAllActiveSources };
+module.exports = {
+  runSource,
+  runAllActiveSources,
+  // Für Unit-Tests: reine Funktionen ohne Netzwerk-/DB-Zugriff.
+  parseDateGuess,
+  extractTrailingLocation,
+  applyNetworkingHeuristic,
+  resolveUrl,
+};
