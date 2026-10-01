@@ -207,6 +207,7 @@ function SourceManager() {
   const [sources, setSources] = useState([]);
   const [categories, setCategories] = useState([]);
   const [form, setForm] = useState(emptySource);
+  const [editingId, setEditingId] = useState(null);
   const [runResults, setRunResults] = useState({});
   const [showForm, setShowForm] = useState(false);
 
@@ -219,11 +220,46 @@ function SourceManager() {
     api.getCategories().then(setCategories);
   }, []);
 
-  async function handleCreate(e) {
-    e.preventDefault();
-    await api.admin.createSource(form);
+  function startCreate() {
+    setEditingId(null);
     setForm(emptySource);
+    setShowForm(true);
+  }
+
+  function startEdit(source) {
+    setEditingId(source.id);
+    setForm({
+      name: source.name,
+      base_url: source.base_url,
+      list_url: source.list_url,
+      item_selector: source.item_selector,
+      title_selector: source.title_selector,
+      date_selector: source.date_selector || '',
+      location_selector: source.location_selector || '',
+      link_selector: source.link_selector || '',
+      link_attr: source.link_attr || 'href',
+      description_selector: source.description_selector || '',
+      category: source.category,
+      default_tags: source.default_tags || '',
+      render_js: !!source.render_js,
+    });
+    setShowForm(true);
+  }
+
+  function cancelForm() {
     setShowForm(false);
+    setEditingId(null);
+    setForm(emptySource);
+  }
+
+  async function handleSave(e) {
+    e.preventDefault();
+    if (editingId) {
+      await api.admin.updateSource(editingId, form);
+    } else {
+      await api.admin.createSource(form);
+    }
+    cancelForm();
     reload();
   }
 
@@ -260,17 +296,19 @@ function SourceManager() {
           >
             Alle jetzt ausführen
           </button>
-          <button onClick={() => setShowForm((s) => !s)}>
+          <button onClick={showForm ? cancelForm : startCreate}>
             {showForm ? 'Abbrechen' : '+ Neue Quelle'}
           </button>
         </div>
       </div>
 
       {showForm && (
-        <form className="source-form" onSubmit={handleCreate}>
+        <form className="source-form" onSubmit={handleSave}>
           <p className="hint">
-            Konfiguriere CSS-Selektoren für eine Event-Listing-Seite. Die Selektoren wirken relativ zu
-            jedem gefundenen Listen-Element (item_selector).
+            {editingId
+              ? 'Quelle bearbeiten.'
+              : 'Konfiguriere CSS-Selektoren für eine Event-Listing-Seite.'}{' '}
+            Die Selektoren wirken relativ zu jedem gefundenen Listen-Element (item_selector).
           </p>
           <div className="form-row">
             <label>
@@ -380,7 +418,7 @@ function SourceManager() {
               onChange={(e) => setForm({ ...form, default_tags: e.target.value })}
             />
           </label>
-          <button type="submit">Quelle speichern</button>
+          <button type="submit">{editingId ? 'Änderungen speichern' : 'Quelle speichern'}</button>
         </form>
       )}
 
@@ -388,6 +426,7 @@ function SourceManager() {
         <thead>
           <tr>
             <th>Name</th>
+            <th>Kategorie</th>
             <th>Listen-URL</th>
             <th>Letzter Lauf</th>
             <th>Aktionen</th>
@@ -397,6 +436,7 @@ function SourceManager() {
           {sources.map((s) => (
             <tr key={s.id}>
               <td>{s.name}</td>
+              <td>{s.category}</td>
               <td>
                 <a href={s.list_url} target="_blank" rel="noopener noreferrer">
                   {s.list_url}
@@ -408,6 +448,9 @@ function SourceManager() {
               </td>
               <td className="admin-actions">
                 <button onClick={() => handleRun(s.id)}>Jetzt ausführen</button>
+                <button className="btn-ghost" onClick={() => startEdit(s)}>
+                  Bearbeiten
+                </button>
                 <button
                   className="btn-danger"
                   onClick={() => {
