@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS events (
   title TEXT NOT NULL,
   description TEXT,
   category TEXT NOT NULL,
+  format TEXT,
   start_date TEXT NOT NULL,
   end_date TEXT,
   location TEXT,
@@ -73,6 +74,57 @@ CREATE INDEX IF NOT EXISTS idx_events_category ON events(category);
 const sourceColumns = db.prepare("PRAGMA table_info(sources)").all().map((c) => c.name);
 if (!sourceColumns.includes('render_js')) {
   db.exec('ALTER TABLE sources ADD COLUMN render_js INTEGER NOT NULL DEFAULT 0');
+}
+
+const eventColumns = db.prepare('PRAGMA table_info(events)').all().map((c) => c.name);
+if (!eventColumns.includes('format')) {
+  db.exec('ALTER TABLE events ADD COLUMN format TEXT');
+}
+
+// Einmalige Migration (PRAGMA user_version als simpler Versionszähler, kein
+// extra Tabelle nötig): die Kategorie-Liste wurde von generischen
+// Event-Kategorien auf eine Business-/Karriere-fokussierte Taxonomie
+// umgestellt (siehe categories.js), und das neue "format"-Feld
+// (online/vor Ort) wird für bestehende Events nachträglich befüllt.
+// Läuft bewusst nur einmal, damit spätere manuelle Korrekturen im
+// Admin-Bereich bei einem Neustart nicht wieder überschrieben werden.
+const CURRENT_SCHEMA_VERSION = 2;
+const { user_version: schemaVersion } = db.prepare('PRAGMA user_version').get();
+
+if (schemaVersion < CURRENT_SCHEMA_VERSION) {
+  const { classifyCategory, inferFormat } = require('../scraper/classify');
+
+  // Alte Kategorie -> bester Startpunkt im neuen System, falls keine
+  // Titel-Schlüsselwörter (classifyCategory) eine treffendere Kategorie
+  // finden. Bereits gültige neue Namen bilden auf sich selbst ab.
+  const OLD_TO_NEW_FALLBACK = {
+    'Business & Networking': 'Sonstiges',
+    Workshop: 'Workshop & Case Study',
+    Musik: 'Sonstiges',
+    Kultur: 'Sonstiges',
+    Sport: 'Sonstiges',
+    Markt: 'Sonstiges',
+    'Party & Nachtleben': 'Sonstiges',
+    'Familie & Kinder': 'Sonstiges',
+    'Essen & Trinken': 'Sonstiges',
+    'Kunst & Ausstellung': 'Sonstiges',
+  };
+
+  const rows = db.prepare('SELECT id, title, category, location, format FROM events').all();
+  const updateStmt = db.prepare('UPDATE events SET category = ?, format = ? WHERE id = ?');
+  const migrate = db.transaction(() => {
+    for (const row of rows) {
+      const fallback = OLD_TO_NEW_FALLBACK[row.category] || row.category;
+      const category = classifyCategory(row.title, fallback);
+      const format = row.format || inferFormat(row.location);
+      if (category !== row.category || format !== row.format) {
+        updateStmt.run(category, format, row.id);
+      }
+    }
+  });
+  migrate();
+
+  db.pragma(`user_version = ${CURRENT_SCHEMA_VERSION}`);
 }
 
 module.exports = db;

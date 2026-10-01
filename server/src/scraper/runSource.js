@@ -1,6 +1,7 @@
 const cheerio = require('cheerio');
 const eventsRepo = require('../db/eventsRepo');
 const sourcesRepo = require('../db/sourcesRepo');
+const { classifyCategory, inferFormat } = require('./classify');
 
 const MONTHS = {
   jan: '01', januar: '01', january: '01',
@@ -148,17 +149,16 @@ function cleanText($el) {
   return $clone.text().replace(/\s+/g, ' ').trim();
 }
 
-// Reine Networking-Formate (Afterwork, Meetup, Stammtisch …) werden von
-// Quellen oft unter einer allgemeinen Kategorie (z. B. "Bildung & Vortrag")
-// mitgeführt. Titel-Schlüsselwörter markieren sie zusätzlich mit dem Tag
-// "networking" und heben sie in die passende Kategorie, damit sie über den
-// Tag-Filter auffindbar bleiben, egal welche Kategorie die Quelle vergibt.
-const NETWORKING_KEYWORDS = /\b(afterwork|after-work|networking|netzwerk(?:abend|treffen)?|stammtisch|meet[- ]?up|mixer)\b/i;
-
-function applyNetworkingHeuristic(title, category, tags) {
-  if (!NETWORKING_KEYWORDS.test(title)) return { category, tags };
+// Titel-Schlüsselwörter (siehe classify.js) haben Vorrang vor der Standard-
+// Kategorie der Quelle: ein "Afterwork with HHL" wird als "Networking"
+// erkannt, auch wenn die Quelle sonst z. B. "Bildung & Vortrag" liefert.
+// Zusätzlich wird bei Networking-Events weiterhin der Tag "networking"
+// vergeben, damit sie auch über den Tag-Filter auffindbar bleiben.
+function classifyEvent(title, defaultCategory, tags) {
+  const category = classifyCategory(title, defaultCategory);
+  if (category !== 'Networking') return { category, tags };
   const withTag = tags.includes('networking') ? tags : [...tags, 'networking'];
-  return { category: 'Business & Networking', tags: withTag };
+  return { category, tags: withTag };
 }
 
 async function runSource(source) {
@@ -216,12 +216,14 @@ async function runSource(source) {
 
       if (link && eventsRepo.findDuplicateByUrlAndTitle(link, title)) { skipped++; continue; }
 
-      const { category, tags } = applyNetworkingHeuristic(title, source.category, defaultTags);
+      const { category, tags } = classifyEvent(title, source.category, defaultTags);
+      const format = inferFormat(location);
 
       eventsRepo.createEvent({
         title,
         description,
         category,
+        format,
         start_date: startDate,
         location,
         url: link,
@@ -260,6 +262,6 @@ module.exports = {
   // Für Unit-Tests: reine Funktionen ohne Netzwerk-/DB-Zugriff.
   parseDateGuess,
   extractTrailingLocation,
-  applyNetworkingHeuristic,
+  classifyEvent,
   resolveUrl,
 };

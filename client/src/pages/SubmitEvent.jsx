@@ -5,6 +5,7 @@ const initialForm = {
   title: '',
   description: '',
   category: '',
+  format: '',
   start_date: '',
   end_date: '',
   location: '',
@@ -19,7 +20,7 @@ const MODES = [
   { key: 'form', label: 'Formular', hint: 'Alle Angaben direkt eintragen' },
 ];
 
-function EventFields({ form, update, categories }) {
+function EventFields({ form, update, categories, formats }) {
   return (
     <>
       <label>
@@ -32,19 +33,32 @@ function EventFields({ form, update, categories }) {
         <textarea rows={4} value={form.description} onChange={(e) => update('description', e.target.value)} />
       </label>
 
-      <label>
-        Kategorie *
-        <select required value={form.category} onChange={(e) => update('category', e.target.value)}>
-          <option value="" disabled>
-            Bitte wählen…
-          </option>
-          {categories.map((c) => (
-            <option key={c} value={c}>
-              {c}
+      <div className="form-row">
+        <label>
+          Kategorie *
+          <select required value={form.category} onChange={(e) => update('category', e.target.value)}>
+            <option value="" disabled>
+              Bitte wählen…
             </option>
-          ))}
-        </select>
-      </label>
+            {categories.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Format
+          <select value={form.format} onChange={(e) => update('format', e.target.value)}>
+            <option value="">Automatisch anhand des Ortes</option>
+            {formats.map((f) => (
+              <option key={f.value} value={f.value}>
+                {f.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
 
       <div className="form-row">
         <label>
@@ -92,6 +106,7 @@ function EventFields({ form, update, categories }) {
 export default function SubmitEvent() {
   const [mode, setMode] = useState('link');
   const [categories, setCategories] = useState([]);
+  const [formats, setFormats] = useState([]);
   const [form, setForm] = useState(initialForm);
   const [status, setStatus] = useState(null); // null | 'sending' | 'success' | 'error'
   const [errorMsg, setErrorMsg] = useState('');
@@ -111,6 +126,7 @@ export default function SubmitEvent() {
 
   useEffect(() => {
     api.getCategories().then(setCategories).catch(() => {});
+    api.getFormats().then(setFormats).catch(() => {});
   }, []);
 
   function update(field, value) {
@@ -256,7 +272,7 @@ export default function SubmitEvent() {
       )}
 
       <form className="event-form" onSubmit={handleSubmit}>
-        <EventFields form={form} update={update} categories={categories} />
+        <EventFields form={form} update={update} categories={categories} formats={formats} />
 
         <button type="submit" disabled={status === 'sending'}>
           {status === 'sending' ? 'Wird gesendet…' : 'Event einreichen'}

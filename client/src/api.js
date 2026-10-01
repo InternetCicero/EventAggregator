@@ -20,6 +20,7 @@ async function handle(res) {
 
 export const api = {
   getCategories: () => fetch(`${BASE}/events/categories`).then(handle),
+  getFormats: () => fetch(`${BASE}/events/formats`).then(handle),
   getTags: () => fetch(`${BASE}/events/tags`).then(handle),
   getEvents: (params = {}) => {
     const qs = new URLSearchParams(Object.entries(params).filter(([, v]) => v));

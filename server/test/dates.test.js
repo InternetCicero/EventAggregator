@@ -1,3 +1,8 @@
+// runSource.js zieht transitiv db/index.js nach sich (eventsRepo/sourcesRepo).
+// Isolierte In-Memory-DB verhindert, dass parallel laufende Testdateien sich
+// beim Schema-Setup die echte data/events.db streitig machen.
+process.env.EVENTS_DB_PATH = ':memory:';
+
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { parseDateGuess, extractTrailingLocation } = require('../src/scraper/runSource');

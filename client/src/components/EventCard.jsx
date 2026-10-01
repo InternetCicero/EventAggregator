@@ -1,3 +1,9 @@
+const FORMAT_LABELS = {
+  online: 'Online',
+  onsite: 'Vor Ort',
+  hybrid: 'Hybrid',
+};
+
 function formatDate(iso) {
   if (!iso) return '';
   const d = new Date(iso);
@@ -15,7 +21,12 @@ function formatDate(iso) {
 export default function EventCard({ event }) {
   return (
     <article className="event-card">
-      <div className="event-card-category">{event.category}</div>
+      <div className="event-card-badges">
+        <div className="event-card-category">{event.category}</div>
+        {FORMAT_LABELS[event.format] && (
+          <div className={`event-card-format is-${event.format}`}>{FORMAT_LABELS[event.format]}</div>
+        )}
+      </div>
       <h3 className="event-card-title">
         {event.url ? (
           <a href={event.url} target="_blank" rel="noopener noreferrer">

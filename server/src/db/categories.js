@@ -1,14 +1,14 @@
+// Business-/Karriere-fokussierte Kategorien, da alle aktuell konfigurierten
+// Quellen Recruiting-/Karriere-Events sind (Consulting, Banking, Startups,
+// Hochschulen). Reihenfolge entspricht der Reihenfolge in Dropdowns.
 module.exports = [
-  'Musik',
-  'Kultur',
-  'Sport',
-  'Markt',
-  'Workshop',
-  'Party & Nachtleben',
-  'Familie & Kinder',
-  'Essen & Trinken',
-  'Business & Networking',
+  'Workshop & Case Study',
+  'Networking',
+  'Consulting',
+  'Banking & Finance',
+  'Start-up & Venture Capital',
+  'Corporate & Industry',
+  'Messen & Karrieretage',
   'Bildung & Vortrag',
-  'Kunst & Ausstellung',
   'Sonstiges',
 ];

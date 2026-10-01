@@ -133,17 +133,38 @@
   gap: 8px;
 }
 
-.event-card-category {
+.event-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.event-card-category,
+.event-card-format {
   display: inline-block;
   align-self: flex-start;
-  color: var(--navy);
-  background: var(--navy-tint);
   font-size: 0.7rem;
   font-weight: 600;
   padding: 3px 9px;
   border-radius: 3px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+.event-card-category {
+  color: var(--navy);
+  background: var(--navy-tint);
+}
+
+.event-card-format {
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.event-card-format.is-online {
+  color: var(--accent-hover);
+  border-color: var(--accent);
+  background: rgba(192, 133, 82, 0.1);
 }
 
 .event-card-title {

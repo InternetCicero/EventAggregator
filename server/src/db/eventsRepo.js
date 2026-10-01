@@ -35,13 +35,14 @@ function attachTags(events) {
 
 function createEvent(data) {
   const stmt = db.prepare(`
-    INSERT INTO events (title, description, category, start_date, end_date, location, url, image_url, source, status, submitter_name)
-    VALUES (@title, @description, @category, @start_date, @end_date, @location, @url, @image_url, @source, @status, @submitter_name)
+    INSERT INTO events (title, description, category, format, start_date, end_date, location, url, image_url, source, status, submitter_name)
+    VALUES (@title, @description, @category, @format, @start_date, @end_date, @location, @url, @image_url, @source, @status, @submitter_name)
   `);
   const info = stmt.run({
     title: data.title,
     description: data.description || null,
     category: data.category,
+    format: data.format || null,
     start_date: data.start_date,
     end_date: data.end_date || null,
     location: data.location || null,
@@ -55,13 +56,17 @@ function createEvent(data) {
   return info.lastInsertRowid;
 }
 
-function listEvents({ status = 'approved', category, tag, from, to, search } = {}) {
+function listEvents({ status = 'approved', category, format, tag, from, to, search } = {}) {
   let query = 'SELECT * FROM events WHERE status = @status';
   const params = { status };
 
   if (category) {
     query += ' AND category = @category';
     params.category = category;
+  }
+  if (format) {
+    query += ' AND format = @format';
+    params.format = format;
   }
   if (from) {
     query += ' AND (end_date IS NULL AND start_date >= @from OR end_date >= @from)';

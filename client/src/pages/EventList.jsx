@@ -5,11 +5,13 @@ import EventCard from '../components/EventCard';
 export default function EventList() {
   const [events, setEvents] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [formats, setFormats] = useState([]);
   const [allTags, setAllTags] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const [category, setCategory] = useState('');
+  const [format, setFormat] = useState('');
   const [tag, setTag] = useState('');
   const [search, setSearch] = useState('');
   const [from, setFrom] = useState('');
@@ -17,19 +19,20 @@ export default function EventList() {
 
   useEffect(() => {
     api.getCategories().then(setCategories).catch(() => {});
+    api.getFormats().then(setFormats).catch(() => {});
     api.getTags().then(setAllTags).catch(() => {});
   }, []);
 
   useEffect(() => {
     setLoading(true);
     setError(null);
-    const params = { category, tag, search, from, to };
+    const params = { category, format, tag, search, from, to };
     api
       .getEvents(params)
       .then(setEvents)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
-  }, [category, tag, search, from, to]);
+  }, [category, format, tag, search, from, to]);
 
   const groupedByDate = useMemo(() => {
     const groups = {};
@@ -58,6 +61,14 @@ export default function EventList() {
             </option>
           ))}
         </select>
+        <select value={format} onChange={(e) => setFormat(e.target.value)}>
+          <option value="">Online & Vor Ort</option>
+          {formats.map((f) => (
+            <option key={f.value} value={f.value}>
+              {f.label}
+            </option>
+          ))}
+        </select>
         <select value={tag} onChange={(e) => setTag(e.target.value)}>
           <option value="">Alle Tags</option>
           {allTags.map((t) => (
@@ -74,11 +85,12 @@ export default function EventList() {
           Bis
           <input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
         </label>
-        {(category || tag || search || from || to) && (
+        {(category || format || tag || search || from || to) && (
           <button
             className="btn-ghost"
             onClick={() => {
               setCategory('');
+              setFormat('');
               setTag('');
               setSearch('');
               setFrom('');

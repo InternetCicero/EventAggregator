@@ -55,9 +55,9 @@ router.delete('/events/:id', (req, res) => {
 });
 
 router.put('/events/:id', (req, res) => {
-  const { title, description, category, start_date, end_date, location, url, tags } = req.body;
+  const { title, description, category, format, start_date, end_date, location, url, tags } = req.body;
   const stmt = db.prepare(`
-    UPDATE events SET title=@title, description=@description, category=@category,
+    UPDATE events SET title=@title, description=@description, category=@category, format=@format,
       start_date=@start_date, end_date=@end_date, location=@location, url=@url,
       updated_at=datetime('now')
     WHERE id=@id
@@ -67,6 +67,7 @@ router.put('/events/:id', (req, res) => {
     title,
     description,
     category,
+    format: format || null,
     start_date,
     end_date: end_date || null,
     location,
