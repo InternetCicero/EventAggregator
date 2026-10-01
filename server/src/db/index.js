@@ -88,27 +88,27 @@ if (!eventColumns.includes('format')) {
 // (online/vor Ort) wird für bestehende Events nachträglich befüllt.
 // Läuft bewusst nur einmal, damit spätere manuelle Korrekturen im
 // Admin-Bereich bei einem Neustart nicht wieder überschrieben werden.
-const CURRENT_SCHEMA_VERSION = 2;
+const CURRENT_SCHEMA_VERSION = 4;
 const { user_version: schemaVersion } = db.prepare('PRAGMA user_version').get();
 
-if (schemaVersion < CURRENT_SCHEMA_VERSION) {
-  const { classifyCategory, inferFormat } = require('../scraper/classify');
+// Alte Kategorie -> bester Startpunkt im neuen System, falls keine
+// Titel-Schlüsselwörter (classifyCategory) eine treffendere Kategorie
+// finden. Bereits gültige neue Namen bilden auf sich selbst ab.
+const OLD_TO_NEW_FALLBACK = {
+  'Business & Networking': 'Sonstiges',
+  Workshop: 'Workshop & Case Study',
+  Musik: 'Sonstiges',
+  Kultur: 'Sonstiges',
+  Sport: 'Sonstiges',
+  Markt: 'Sonstiges',
+  'Party & Nachtleben': 'Sonstiges',
+  'Familie & Kinder': 'Sonstiges',
+  'Essen & Trinken': 'Sonstiges',
+  'Kunst & Ausstellung': 'Sonstiges',
+};
 
-  // Alte Kategorie -> bester Startpunkt im neuen System, falls keine
-  // Titel-Schlüsselwörter (classifyCategory) eine treffendere Kategorie
-  // finden. Bereits gültige neue Namen bilden auf sich selbst ab.
-  const OLD_TO_NEW_FALLBACK = {
-    'Business & Networking': 'Sonstiges',
-    Workshop: 'Workshop & Case Study',
-    Musik: 'Sonstiges',
-    Kultur: 'Sonstiges',
-    Sport: 'Sonstiges',
-    Markt: 'Sonstiges',
-    'Party & Nachtleben': 'Sonstiges',
-    'Familie & Kinder': 'Sonstiges',
-    'Essen & Trinken': 'Sonstiges',
-    'Kunst & Ausstellung': 'Sonstiges',
-  };
+if (schemaVersion < 2) {
+  const { classifyCategory, inferFormat } = require('../scraper/classify');
 
   const rows = db.prepare('SELECT id, title, category, location, format FROM events').all();
   const updateStmt = db.prepare('UPDATE events SET category = ?, format = ? WHERE id = ?');
@@ -123,7 +123,77 @@ if (schemaVersion < CURRENT_SCHEMA_VERSION) {
     }
   });
   migrate();
+}
 
+if (schemaVersion < 3) {
+  // Schritt 1 (Version 2) hat nur bestehende EVENTS neu einsortiert. Die
+  // Standard-Kategorie der QUELLEN selbst (der Fallback für künftig neu
+  // gescrapte Events ohne Stichwort-Treffer im Titel) blieb dabei auf dem
+  // alten, inzwischen ungültigen Namen stehen (z.B. "Business & Networking"
+  // bei PwC/SQUEAKER). Bekannte Quellen bekommen hier eine passende Branche,
+  // alle anderen werden best möglich auf die neue Liste abgebildet.
+  const validCategories = require('./categories');
+  const SOURCE_NAME_OVERRIDES = {
+    'HHL Leipzig Veranstaltungen': 'Bildung & Vortrag',
+    'Hackathon Hub Europe': 'Workshop & Case Study',
+    'PwC Karriere-Events': 'Consulting',
+    'SQUEAKER Karriere-Events': 'Consulting',
+    'Deloitte Recruiting-Events': 'Consulting',
+    'Strategy& (PwC) Karriere-Events': 'Consulting',
+    'Roland Berger Events': 'Consulting',
+    // e-fellows.net listet Events aus allen Branchen (Consulting, Banking,
+    // Start-ups, Hackathons, Stipendien) in einem Feed — "Sonstiges" als
+    // Fallback, die Stichwort-Klassifizierung sortiert die meisten Titel
+    // beim nächsten Scrape-Lauf ohnehin automatisch treffender ein.
+    'e-fellows.net Events': 'Sonstiges',
+  };
+
+  const sources = db.prepare('SELECT id, name, category FROM sources').all();
+  const updateSourceStmt = db.prepare('UPDATE sources SET category = ? WHERE id = ?');
+  const migrateSources = db.transaction(() => {
+    for (const source of sources) {
+      const category =
+        SOURCE_NAME_OVERRIDES[source.name] ||
+        OLD_TO_NEW_FALLBACK[source.category] ||
+        (validCategories.includes(source.category) ? source.category : 'Sonstiges');
+      if (category !== source.category) {
+        updateSourceStmt.run(category, source.id);
+      }
+    }
+  });
+  migrateSources();
+}
+
+if (schemaVersion < 4) {
+  // Events, die zwischen der alten Kategorie-Umstellung (Version 2, pro
+  // Event) und der Korrektur der Quellen-Standardkategorie (Version 3)
+  // gescraped wurden, landeten mit dem damaligen Fallback "Sonstiges" in
+  // der DB, obwohl ihre Quelle inzwischen eine treffendere Branche hat
+  // (z.B. "Consulting" bei PwC). Gezielter Nachlauf nur für "Sonstiges"
+  // -Events mit bekannter Quelle — absichtlich manuell gesetzte "Sonstiges"
+  // -Events (z.B. über das Einreichungsformular, source='manual') bleiben
+  // unberührt, weil es dafür keinen passenden Quellen-Eintrag gibt.
+  const { classifyCategory } = require('../scraper/classify');
+
+  const rows = db
+    .prepare(
+      `SELECT e.id, e.title, e.category, s.category AS source_category
+       FROM events e
+       JOIN sources s ON s.name = e.source
+       WHERE e.category = 'Sonstiges'`,
+    )
+    .all();
+  const updateStmt = db.prepare('UPDATE events SET category = ? WHERE id = ?');
+  const reclassify = db.transaction(() => {
+    for (const row of rows) {
+      const category = classifyCategory(row.title, row.source_category);
+      if (category !== row.category) updateStmt.run(category, row.id);
+    }
+  });
+  reclassify();
+}
+
+if (schemaVersion < CURRENT_SCHEMA_VERSION) {
   db.pragma(`user_version = ${CURRENT_SCHEMA_VERSION}`);
 }
 
