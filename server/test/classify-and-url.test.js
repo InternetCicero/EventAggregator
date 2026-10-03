@@ -8,10 +8,29 @@ const assert = require('node:assert/strict');
 const { classifyEvent, resolveUrl } = require('../src/scraper/runSource');
 const { classifyCategory, inferFormat } = require('../src/scraper/classify');
 
-test('classifyCategory: Workshop & Case Study (Hackathon, Case Interview, Workshop)', () => {
-  assert.equal(classifyCategory('TNG MuniHac Haskell Hackathon', 'Sonstiges'), 'Workshop & Case Study');
+test('classifyCategory: Hackathon (Hackathon, Buildathon, Hacklab, Hack Night)', () => {
+  assert.equal(classifyCategory('TNG MuniHac Haskell Hackathon', 'Sonstiges'), 'Hackathon');
+  assert.equal(classifyCategory('Tenzo\'s AI Buildathon', 'Sonstiges'), 'Hackathon');
+  assert.equal(classifyCategory('Da Vinci Hacklab', 'Sonstiges'), 'Hackathon');
+  assert.equal(classifyCategory('Hack Night', 'Sonstiges'), 'Hackathon');
+  assert.equal(classifyCategory('Daytona & Give(a)Go HackSprint - Dublin', 'Sonstiges'), 'Hackathon');
+});
+
+test('classifyCategory: reines "Sprint" im Titel löst keine Workshop-Zuordnung aus (Quellen-Fallback gilt)', () => {
+  assert.equal(classifyCategory('MediaTech SPRINT - Innovation and Collaboration', 'Hackathon'), 'Hackathon');
+});
+
+test('classifyCategory: Hackathon hat Vorrang vor Workshop/Networking im selben Titel', () => {
+  assert.equal(classifyCategory('Hackathon Workshop & Afterwork', 'Sonstiges'), 'Hackathon');
+});
+
+test('classifyCategory: Workshop & Case Study (Case Interview, Workshop, Bootcamp)', () => {
   assert.equal(classifyCategory('Crack the Case - Women\'s Edition', 'Sonstiges'), 'Workshop & Case Study');
   assert.equal(classifyCategory('Seminar Verhandlungsführung Workshop', 'Sonstiges'), 'Workshop & Case Study');
+  assert.equal(
+    classifyCategory('SQUEAKER x Carma | Case Interview Structuring Masterclass', 'Consulting'),
+    'Workshop & Case Study',
+  );
 });
 
 test('classifyCategory: Networking (Afterwork, Meetup, Mixer, Netzwerkabend)', () => {

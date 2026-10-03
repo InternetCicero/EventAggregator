@@ -3,6 +3,7 @@
 // Hochschulen). Reihenfolge entspricht der Reihenfolge in Dropdowns.
 module.exports = [
   'Workshop & Case Study',
+  'Hackathon',
   'Networking',
   'Consulting',
   'Banking & Finance',

@@ -95,6 +95,40 @@ insertEvent.run({
   location: null,
   source: 'manual',
 });
+// Hackathon-Hub-Quelle noch mit der alten Kategorie "Workshop" und zwei Events:
+// eins mit Hackathon-Stichwort, eins ohne (fiel über den Quellen-Fallback in
+// "Workshop & Case Study"). Dazu ein Case-Interview-Workshop einer anderen
+// Quelle, der NICHT zu Hackathon wandern darf.
+seedDb
+  .prepare(
+    `INSERT INTO sources (name, base_url, list_url, item_selector, title_selector, category)
+     VALUES ('Hackathon Hub Europe', 'https://hackathonhub.eu', 'https://hackathonhub.eu/', '.item', '.title', 'Workshop')`,
+  )
+  .run();
+seedDb
+  .prepare(
+    `INSERT INTO sources (name, base_url, list_url, item_selector, title_selector, category)
+     VALUES ('SQUEAKER Karriere-Events', 'https://www.squeaker.net', 'https://www.squeaker.net/de/event', '.item', '.title', 'Business & Networking')`,
+  )
+  .run();
+insertEvent.run({
+  title: 'Swiss Hackathon 2026',
+  category: 'Workshop',
+  location: 'Zürich',
+  source: 'Hackathon Hub Europe',
+});
+insertEvent.run({
+  title: 'Student Competition 2026 - 4th Edition',
+  category: 'Workshop',
+  location: 'Wien',
+  source: 'Hackathon Hub Europe',
+});
+insertEvent.run({
+  title: 'SQUEAKER x Carma | Case Interview Structuring Masterclass',
+  category: 'Business & Networking',
+  location: 'Online',
+  source: 'SQUEAKER Karriere-Events',
+});
 seedDb.close();
 
 // Erst jetzt laden — db/index.js öffnet dieselbe Datei und migriert sie beim
@@ -124,7 +158,27 @@ test('Migration: Quellen-Standardkategorie wird auf die neue Taxonomie gehoben',
 
 test('Migration: schema_version steht danach auf dem aktuellen Stand', () => {
   const { user_version } = db.prepare('PRAGMA user_version').get();
-  assert.ok(user_version >= 4);
+  assert.ok(user_version >= 5);
+});
+
+test('Migration: Event mit Hackathon-Stichwort landet in der Kategorie "Hackathon"', () => {
+  const row = db.prepare("SELECT category FROM events WHERE title = 'Swiss Hackathon 2026'").get();
+  assert.equal(row.category, 'Hackathon');
+});
+
+test('Migration: Event der Hackathon-Quelle ohne Stichwort folgt der Quellen-Kategorie', () => {
+  const row = db.prepare("SELECT category FROM events WHERE title LIKE 'Student Competition%'").get();
+  assert.equal(row.category, 'Hackathon');
+});
+
+test('Migration: Hackathon-Hub-Quelle hat jetzt "Hackathon" als Standard-Kategorie', () => {
+  const row = db.prepare("SELECT category FROM sources WHERE name = 'Hackathon Hub Europe'").get();
+  assert.equal(row.category, 'Hackathon');
+});
+
+test('Migration: Case-Interview-Workshop anderer Quellen bleibt "Workshop & Case Study"', () => {
+  const row = db.prepare("SELECT category FROM events WHERE title LIKE '%Case Interview%'").get();
+  assert.equal(row.category, 'Workshop & Case Study');
 });
 
 test.after(() => {

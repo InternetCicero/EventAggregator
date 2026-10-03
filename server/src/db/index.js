@@ -88,7 +88,7 @@ if (!eventColumns.includes('format')) {
 // (online/vor Ort) wird für bestehende Events nachträglich befüllt.
 // Läuft bewusst nur einmal, damit spätere manuelle Korrekturen im
 // Admin-Bereich bei einem Neustart nicht wieder überschrieben werden.
-const CURRENT_SCHEMA_VERSION = 4;
+const CURRENT_SCHEMA_VERSION = 5;
 const { user_version: schemaVersion } = db.prepare('PRAGMA user_version').get();
 
 // Alte Kategorie -> bester Startpunkt im neuen System, falls keine
@@ -191,6 +191,41 @@ if (schemaVersion < 4) {
     }
   });
   reclassify();
+}
+
+if (schemaVersion < 5) {
+  // "Hackathon" ist jetzt eine eigene Kategorie (vorher Teil von "Workshop &
+  // Case Study"). Die Hackathon-Hub-Quelle bekommt sie als Standard, und
+  // bestehende Events, die bisher unter "Workshop & Case Study" liefen,
+  // werden einmalig neu eingeordnet: Titel mit Hackathon-Stichwort gehen per
+  // classifyCategory dorthin, Events der Hackathon-Quelle ohne Stichwort
+  // (z.B. "Student Competition 2026") über den Quellen-Fallback. Alle
+  // anderen "Workshop & Case Study"-Events (z.B. Case-Interview-Workshops
+  // von SQUEAKER) behalten ihre Kategorie, ebenso manuell zugeordnete
+  // Events in anderen Kategorien.
+  const { classifyCategory } = require('../scraper/classify');
+
+  const migrate = db.transaction(() => {
+    db.prepare(
+      "UPDATE sources SET category = 'Hackathon' WHERE name = 'Hackathon Hub Europe' OR list_url LIKE '%hackathonhub.eu%'",
+    ).run();
+
+    const rows = db
+      .prepare(
+        `SELECT e.id, e.title, e.category, s.category AS source_category
+         FROM events e
+         LEFT JOIN sources s ON s.name = e.source
+         WHERE e.category = 'Workshop & Case Study'`,
+      )
+      .all();
+    const updateStmt = db.prepare('UPDATE events SET category = ? WHERE id = ?');
+    for (const row of rows) {
+      const fallback = row.source_category === 'Hackathon' ? 'Hackathon' : row.category;
+      const category = classifyCategory(row.title, fallback);
+      if (category !== row.category) updateStmt.run(category, row.id);
+    }
+  });
+  migrate();
 }
 
 if (schemaVersion < CURRENT_SCHEMA_VERSION) {

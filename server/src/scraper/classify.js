@@ -17,8 +17,12 @@
 // erkannt, weil das Format-Stichwort im Titel Vorrang vor der Branche hat.
 const CATEGORY_RULES = [
   {
+    category: 'Hackathon',
+    pattern: /hackathon|buildathon|hacklab|hack[- ]?night|hack[- ]?sprint/i,
+  },
+  {
     category: 'Workshop & Case Study',
-    pattern: /hackathon|buildathon|hacklab|hack[- ]?night|case[- ]?stud|case[- ]?interview|probe-?case|crack the case|workshop|bootcamp|sprint/i,
+    pattern: /case[- ]?stud|case[- ]?interview|probe-?case|crack the case|workshop|bootcamp/i,
   },
   {
     category: 'Networking',
