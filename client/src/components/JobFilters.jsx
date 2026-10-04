@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { DEGREE_LABELS, WORK_MODE_LABELS } from '../lib/jobLabels';
 import { emptyJobFilters } from '../lib/jobForm';
+import { FilterSummary, FilterToggle, Segmented } from './FilterParts';
 
 // Filterleiste für /jobs: die häufigsten Filter immer sichtbar, der Rest
 // thematisch gruppiert in einem aufklappbaren Bereich. Aktive Filter
@@ -10,30 +11,6 @@ import { emptyJobFilters } from '../lib/jobForm';
 const ADVANCED_KEYS = ['degree_level', 'semester', 'work_mode', 'paid', 'salary_given', 'sector', 'language'];
 
 const PAID_OPTIONS = { yes: 'Bezahlt', no: 'Unbezahlt' };
-
-function Segmented({ label, value, options, onChange }) {
-  return (
-    <div className="filter-field">
-      <span className="filter-label">{label}</span>
-      <div className="segmented" role="group" aria-label={label}>
-        <button type="button" className={value ? 'seg' : 'seg is-active'} onClick={() => onChange('')}>
-          Alle
-        </button>
-        {Object.entries(options).map(([v, text]) => (
-          <button
-            key={v}
-            type="button"
-            aria-pressed={value === v}
-            className={value === v ? 'seg is-active' : 'seg'}
-            onClick={() => onChange(value === v ? '' : v)}
-          >
-            {text}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function chipLabels(filters, meta) {
   const chips = [];
@@ -58,8 +35,8 @@ export default function JobFilters({ filters, onChange, meta, resultCount }) {
   const chips = chipLabels(filters, meta);
 
   return (
-    <div className="job-filters">
-      <div className="job-filters-main">
+    <div className="filter-bar">
+      <div className="filter-bar-main">
         <input
           type="search"
           className="filter-search"
@@ -82,22 +59,11 @@ export default function JobFilters({ filters, onChange, meta, resultCount }) {
           value={filters.location}
           onChange={(e) => set('location', e.target.value)}
         />
-        <button
-          type="button"
-          className={open ? 'btn-ghost filter-toggle is-open' : 'btn-ghost filter-toggle'}
-          aria-expanded={open}
-          onClick={() => setOpen((o) => !o)}
-        >
-          Weitere Filter
-          {advancedCount > 0 && <span className="filter-count">{advancedCount}</span>}
-          <span className="filter-caret" aria-hidden="true">
-            ▾
-          </span>
-        </button>
+        <FilterToggle open={open} onToggle={() => setOpen((o) => !o)} activeCount={advancedCount} />
       </div>
 
       {open && (
-        <div className="job-filters-panel">
+        <div className="filter-bar-panel">
           <fieldset className="filter-group">
             <legend>Studium</legend>
             <Segmented
@@ -166,22 +132,12 @@ export default function JobFilters({ filters, onChange, meta, resultCount }) {
         </div>
       )}
 
-      <div className="job-filters-summary">
-        <span className="result-count">
-          {resultCount === null ? 'Lädt…' : `${resultCount} ${resultCount === 1 ? 'Stelle' : 'Stellen'}`}
-        </span>
-        {chips.map((c) => (
-          <button key={c.key} type="button" className="filter-chip" onClick={() => set(c.key, '')}>
-            {c.text}
-            <span aria-label="Filter entfernen"> ×</span>
-          </button>
-        ))}
-        {chips.length > 1 && (
-          <button type="button" className="filter-reset" onClick={() => onChange(emptyJobFilters)}>
-            Alle zurücksetzen
-          </button>
-        )}
-      </div>
+      <FilterSummary
+        resultText={resultCount === null ? 'Lädt…' : `${resultCount} ${resultCount === 1 ? 'Stelle' : 'Stellen'}`}
+        chips={chips}
+        onRemove={(key) => set(key, '')}
+        onReset={() => onChange(emptyJobFilters)}
+      />
     </div>
   );
 }

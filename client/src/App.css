@@ -508,16 +508,16 @@ button:disabled {
   margin-bottom: 18px;
 }
 
-/* Filter der Stellenübersicht */
-.job-filters {
+/* Filterleisten (Events und Jobs) */
+.filter-bar {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 4px;
   margin-bottom: 20px;
 }
 
-.job-filters input,
-.job-filters select {
+.filter-bar input,
+.filter-bar select {
   padding: 9px 10px;
   border-radius: 4px;
   border: 1px solid var(--border);
@@ -528,11 +528,25 @@ button:disabled {
   min-width: 0;
 }
 
-.job-filters-main {
+.filter-bar-main {
   display: grid;
   grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.2fr) minmax(0, 1fr) auto;
   gap: 10px;
   padding: 14px;
+}
+
+.filter-bar-main.is-compact {
+  grid-template-columns: minmax(0, 2.4fr) minmax(0, 1.4fr) auto;
+}
+
+.filter-bar-panel.is-two-col {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.filter-date-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 
 .filter-toggle {
@@ -561,7 +575,7 @@ button:disabled {
   transform: rotate(180deg);
 }
 
-.job-filters-panel {
+.filter-bar-panel {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0;
@@ -644,7 +658,7 @@ button:disabled {
   color: var(--offwhite);
 }
 
-.job-filters-summary {
+.filter-bar-summary {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -1016,20 +1030,31 @@ fieldset.vibe-row.is-unset {
     flex-direction: column;
   }
 
-  .job-filters-main {
+  .filter-bar-main {
     grid-template-columns: 1fr 1fr;
   }
 
-  .job-filters-main .filter-search,
-  .job-filters-main .filter-toggle {
+  .filter-bar-main.is-compact select,
+  .filter-bar-main .filter-search,
+  .filter-bar-main .filter-toggle {
     grid-column: 1 / -1;
   }
 
-  .job-filters-main .filter-toggle {
+  .filter-bar-main .filter-toggle {
     justify-content: center;
   }
 
-  .job-filters-panel {
+  .segmented .seg {
+    padding: 7px 8px;
+    font-size: 0.8rem;
+  }
+
+  .filter-group {
+    padding: 12px 12px 14px;
+  }
+
+  .filter-bar-panel,
+  .filter-bar-panel.is-two-col {
     grid-template-columns: 1fr;
   }
 
