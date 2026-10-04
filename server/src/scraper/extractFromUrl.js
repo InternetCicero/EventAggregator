@@ -37,18 +37,22 @@ async function assertPublicUrl(rawUrl) {
   return parsed;
 }
 
-function pickEventNode(json) {
+function pickNodeOfType(json, wantedType) {
   const candidates = [];
   const visit = (node) => {
     if (!node || typeof node !== 'object') return;
     if (Array.isArray(node)) return node.forEach(visit);
     const type = node['@type'];
     const types = Array.isArray(type) ? type : [type];
-    if (types.includes('Event')) candidates.push(node);
+    if (types.includes(wantedType)) candidates.push(node);
     if (node['@graph']) visit(node['@graph']);
   };
   visit(json);
   return candidates[0] || null;
+}
+
+function pickEventNode(json) {
+  return pickNodeOfType(json, 'Event');
 }
 
 function locationToString(location) {
@@ -83,7 +87,7 @@ function toDatetimeLocal(value) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-async function extractFromUrl(rawUrl) {
+async function fetchPublicHtml(rawUrl) {
   const parsed = await assertPublicUrl(rawUrl);
 
   const res = await fetch(parsed.toString(), {
@@ -91,7 +95,11 @@ async function extractFromUrl(rawUrl) {
     redirect: 'follow',
   });
   if (!res.ok) throw new Error(`Seite konnte nicht geladen werden (HTTP ${res.status})`);
-  const html = await res.text();
+  return { parsed, html: await res.text() };
+}
+
+async function extractFromUrl(rawUrl) {
+  const { parsed, html } = await fetchPublicHtml(rawUrl);
   const $ = cheerio.load(html);
 
   const result = {
@@ -137,8 +145,110 @@ async function extractFromUrl(rawUrl) {
   return result;
 }
 
+// --- Stellenanzeigen (schema.org JobPosting) ---
+
+// Stellenbeschreibungen in JSON-LD sind fast immer HTML; für das Formular
+// wird reiner Text mit erhaltenen Absätzen gebraucht.
+function htmlToText(html) {
+  if (!html) return null;
+  const $ = cheerio.load(`<div id="root">${String(html).replace(/<br\s*\/?>/gi, '\n')}</div>`);
+  $('#root')
+    .find('p, li, div, h1, h2, h3, h4')
+    .each((_, el) => {
+      $(el).append('\n');
+    });
+  const text = $('#root')
+    .text()
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+  return text || null;
+}
+
+function toDate(value) {
+  if (!value) return null;
+  const match = String(value).match(/^(\d{4}-\d{2}-\d{2})/);
+  if (match) return match[1];
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10);
+}
+
+// baseSalary -> Monatsbrutto (Spec A2). Jahresangaben werden durch 12
+// geteilt, Stunden-/Wochenangaben ignoriert, weil die Umrechnung zu ungenau ist.
+function salaryToMonthly(baseSalary) {
+  if (!baseSalary || typeof baseSalary !== 'object') return { salary_min: null, salary_max: null };
+  const value = baseSalary.value && typeof baseSalary.value === 'object' ? baseSalary.value : baseSalary;
+  const unit = String(value.unitText || baseSalary.unitText || 'MONTH').toUpperCase();
+  const factor = unit === 'MONTH' ? 1 : unit === 'YEAR' ? 1 / 12 : null;
+  if (factor === null) return { salary_min: null, salary_max: null };
+  const conv = (v) => (v === undefined || v === null || Number.isNaN(Number(v)) ? null : Math.round(Number(v) * factor));
+  const single = typeof baseSalary.value === 'number' ? baseSalary.value : value.value;
+  return {
+    salary_min: conv(value.minValue ?? single),
+    salary_max: conv(value.maxValue ?? single),
+  };
+}
+
+const EMPLOYMENT_TYPE_MAP = { INTERN: 'praktikum', INTERNSHIP: 'praktikum' };
+
+function parseJobPostingHtml(html, pageUrl) {
+  const $ = cheerio.load(html);
+  const result = {
+    title: null,
+    description: null,
+    company_name: null,
+    location: null,
+    work_mode: null,
+    job_type: null,
+    deadline: null,
+    salary_min: null,
+    salary_max: null,
+    apply_url: pageUrl,
+    matched: 'none',
+  };
+
+  $('script[type="application/ld+json"]').each((_, el) => {
+    if (result.matched === 'json-ld') return;
+    let json;
+    try {
+      json = JSON.parse($(el).contents().text());
+    } catch {
+      return;
+    }
+    const job = pickNodeOfType(json, 'JobPosting');
+    if (!job) return;
+    result.title = job.title || job.name || null;
+    result.description = htmlToText(job.description);
+    const org = Array.isArray(job.hiringOrganization) ? job.hiringOrganization[0] : job.hiringOrganization;
+    result.company_name = (org && (typeof org === 'string' ? org : org.name)) || null;
+    result.location = locationToString(job.jobLocation);
+    if (String(job.jobLocationType || '').toUpperCase() === 'TELECOMMUTE') result.work_mode = 'remote';
+    const employmentTypes = [].concat(job.employmentType || []).map((t) => String(t).toUpperCase());
+    result.job_type = employmentTypes.map((t) => EMPLOYMENT_TYPE_MAP[t]).find(Boolean) || null;
+    result.deadline = toDate(job.validThrough);
+    Object.assign(result, salaryToMonthly(job.baseSalary));
+    if (job.url) result.apply_url = job.url;
+    result.matched = 'json-ld';
+  });
+
+  if (!result.title) result.title = $('meta[property="og:title"]').attr('content') || $('title').first().text().trim() || null;
+  if (!result.description) result.description = $('meta[property="og:description"]').attr('content') || null;
+  if (result.matched === 'none' && (result.title || result.description)) result.matched = 'opengraph';
+
+  return result;
+}
+
+async function extractJobFromUrl(rawUrl) {
+  const { parsed, html } = await fetchPublicHtml(rawUrl);
+  return parseJobPostingHtml(html, parsed.toString());
+}
+
 module.exports = {
   extractFromUrl,
+  extractJobFromUrl,
+  parseJobPostingHtml,
+  salaryToMonthly,
+  htmlToText,
   // Für Unit-Tests: reine Funktionen ohne Netzwerkzugriff.
   isPrivateAddress,
   assertPublicUrl,

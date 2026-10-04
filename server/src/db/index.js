@@ -69,6 +69,55 @@ CREATE TABLE IF NOT EXISTS sources (
 CREATE INDEX IF NOT EXISTS idx_events_status ON events(status);
 CREATE INDEX IF NOT EXISTS idx_events_start_date ON events(start_date);
 CREATE INDEX IF NOT EXISTS idx_events_category ON events(category);
+
+-- Jobs & Praktika (siehe docs/specs/2026-10-04-jobs-praktika.md)
+CREATE TABLE IF NOT EXISTS companies (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL UNIQUE,
+  website TEXT,
+  sector TEXT,
+  size_bucket TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS jobs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  company_id INTEGER REFERENCES companies(id) ON DELETE SET NULL,
+  company_name TEXT NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  job_type TEXT NOT NULL,
+  degree_level TEXT,
+  min_semester INTEGER,
+  location TEXT,
+  work_mode TEXT,
+  start_date TEXT,
+  duration_months INTEGER,
+  paid TEXT NOT NULL DEFAULT 'unknown',
+  salary_min INTEGER,
+  salary_max INTEGER,
+  languages TEXT DEFAULT '',
+  apply_url TEXT,
+  apply_email TEXT,
+  deadline TEXT,
+  vibe TEXT,
+  answers TEXT,
+  referrer_name TEXT,
+  referrer_note TEXT,
+  contact_name TEXT,
+  contact_role TEXT,
+  contact_decides INTEGER,
+  contact_email TEXT,
+  contact_consent INTEGER NOT NULL DEFAULT 0,
+  source_kind TEXT NOT NULL DEFAULT 'member',
+  status TEXT NOT NULL DEFAULT 'pending',
+  submitter_name TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs(status);
+CREATE INDEX IF NOT EXISTS idx_jobs_company ON jobs(company_id);
 `);
 
 const sourceColumns = db.prepare("PRAGMA table_info(sources)").all().map((c) => c.name);
