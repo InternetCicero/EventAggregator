@@ -60,3 +60,14 @@ test('AC-17: lokale und private Adressen werden abgelehnt', async () => {
   await assert.rejects(() => extractJobFromUrl('http://127.0.0.1/'), /Private\/interne/);
   await assert.rejects(() => extractJobFromUrl('file:///etc/passwd'), /http\/https/);
 });
+
+test('HTML-Entities in Titel und Firmenname werden dekodiert', () => {
+  const posting = {
+    '@type': 'JobPosting',
+    title: 'Praktikant im Consulting für IT-M&amp;A',
+    hiringOrganization: { name: 'Müller &amp; Söhne' },
+  };
+  const r = parseJobPostingHtml(`<script type="application/ld+json">${JSON.stringify(posting)}</script>`, 'https://x.example');
+  assert.equal(r.title, 'Praktikant im Consulting für IT-M&A');
+  assert.equal(r.company_name, 'Müller & Söhne');
+});

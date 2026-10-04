@@ -29,8 +29,17 @@ router.get('/tags', (req, res) => {
   res.json(eventsRepo.listAllTags());
 });
 
+// Lokales Datum JJJJ-MM-TT (nicht UTC), damit Events von heute bis
+// Mitternacht sichtbar bleiben
+function todayIso(now = new Date()) {
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
 router.get('/', (req, res) => {
-  const { category, format, tag, from, to, search } = req.query;
+  const { category, format, tag, to, search } = req.query;
+  // Ohne eigenen Zeitraum nur laufende und kommende Events zeigen
+  const from = req.query.from || todayIso();
   const events = eventsRepo.listEvents({ status: 'approved', category, format, tag, from, to, search });
   res.json(events);
 });

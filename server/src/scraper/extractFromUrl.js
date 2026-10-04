@@ -217,10 +217,11 @@ function parseJobPostingHtml(html, pageUrl) {
     }
     const job = pickNodeOfType(json, 'JobPosting');
     if (!job) return;
-    result.title = job.title || job.name || null;
+    // JSON-LD-Strings enthalten oft HTML-Entities (z. B. "IT-M&amp;A")
+    result.title = htmlToText(job.title || job.name);
     result.description = htmlToText(job.description);
     const org = Array.isArray(job.hiringOrganization) ? job.hiringOrganization[0] : job.hiringOrganization;
-    result.company_name = (org && (typeof org === 'string' ? org : org.name)) || null;
+    result.company_name = htmlToText(org && (typeof org === 'string' ? org : org.name));
     result.location = locationToString(job.jobLocation);
     if (String(job.jobLocationType || '').toUpperCase() === 'TELECOMMUTE') result.work_mode = 'remote';
     const employmentTypes = [].concat(job.employmentType || []).map((t) => String(t).toUpperCase());
