@@ -187,3 +187,14 @@ test.after(() => {
   fs.rmSync(`${tmpPath}-wal`, { force: true });
   fs.rmSync(`${tmpPath}-shm`, { force: true });
 });
+
+test('AC-20: bestehende DB bekommt die Tabellen companies und jobs, ohne Event-Daten zu verlieren', () => {
+  const tables = db
+    .prepare("SELECT name FROM sqlite_master WHERE type = 'table'")
+    .all()
+    .map((r) => r.name);
+  assert.ok(tables.includes('companies'));
+  assert.ok(tables.includes('jobs'));
+  const { n } = db.prepare('SELECT COUNT(*) AS n FROM events').get();
+  assert.ok(n > 0);
+});

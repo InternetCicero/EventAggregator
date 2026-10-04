@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../api';
 import EventCard from '../components/EventCard';
+import EventFilters from '../components/EventFilters';
+import { emptyEventFilters } from '../lib/eventFilters';
 
 export default function EventList() {
   const [events, setEvents] = useState([]);
@@ -10,12 +12,7 @@ export default function EventList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [category, setCategory] = useState('');
-  const [format, setFormat] = useState('');
-  const [tag, setTag] = useState('');
-  const [search, setSearch] = useState('');
-  const [from, setFrom] = useState('');
-  const [to, setTo] = useState('');
+  const [filters, setFilters] = useState(emptyEventFilters);
 
   useEffect(() => {
     api.getCategories().then(setCategories).catch(() => {});
@@ -26,13 +23,12 @@ export default function EventList() {
   useEffect(() => {
     setLoading(true);
     setError(null);
-    const params = { category, format, tag, search, from, to };
     api
-      .getEvents(params)
+      .getEvents(filters)
       .then(setEvents)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
-  }, [category, format, tag, search, from, to]);
+  }, [filters]);
 
   const groupedByDate = useMemo(() => {
     const groups = {};
@@ -46,65 +42,26 @@ export default function EventList() {
 
   return (
     <div className="event-list-page">
-      <div className="filters">
-        <input
-          type="text"
-          placeholder="Suche nach Titel, Ort, Beschreibung…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
-          <option value="">Alle Kategorien</option>
-          {categories.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-        <select value={format} onChange={(e) => setFormat(e.target.value)}>
-          <option value="">Online & Vor Ort</option>
-          {formats.map((f) => (
-            <option key={f.value} value={f.value}>
-              {f.label}
-            </option>
-          ))}
-        </select>
-        <select value={tag} onChange={(e) => setTag(e.target.value)}>
-          <option value="">Alle Tags</option>
-          {allTags.map((t) => (
-            <option key={t} value={t}>
-              #{t}
-            </option>
-          ))}
-        </select>
-        <label>
-          Von
-          <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
-        </label>
-        <label>
-          Bis
-          <input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
-        </label>
-        {(category || format || tag || search || from || to) && (
-          <button
-            className="btn-ghost"
-            onClick={() => {
-              setCategory('');
-              setFormat('');
-              setTag('');
-              setSearch('');
-              setFrom('');
-              setTo('');
-            }}
-          >
-            Filter zurücksetzen
-          </button>
-        )}
-      </div>
+      <EventFilters
+        filters={filters}
+        onChange={setFilters}
+        categories={categories}
+        formats={formats}
+        tags={allTags}
+        resultCount={loading ? null : events.length}
+      />
 
-      {loading && <p className="hint">Lade Events…</p>}
       {error && <p className="error">Fehler: {error}</p>}
-      {!loading && !error && events.length === 0 && <p className="hint">Keine Events gefunden.</p>}
+      {!loading && !error && events.length === 0 && (
+        <p className="hint">
+          Keine Events gefunden.{' '}
+          {Object.values(filters).some(Boolean) && (
+            <button type="button" className="link-button" onClick={() => setFilters(emptyEventFilters)}>
+              Filter zurücksetzen
+            </button>
+          )}
+        </p>
+      )}
 
       {groupedByDate.map(([day, dayEvents]) => (
         <section key={day} className="day-group">

@@ -1,5 +1,13 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api';
+import JobsAdmin from '../components/admin/JobsAdmin';
+import CompaniesAdmin from '../components/admin/CompaniesAdmin';
+
+const TABS = [
+  { key: 'events', label: 'Events' },
+  { key: 'jobs', label: 'Stellen' },
+  { key: 'companies', label: 'Firmen' },
+];
 
 function LoginForm({ onLogin }) {
   const [user, setUser] = useState('');
@@ -470,6 +478,7 @@ function SourceManager() {
 
 export default function AdminDashboard() {
   const [loggedIn, setLoggedIn] = useState(api.admin.isLoggedIn());
+  const [tab, setTab] = useState('events');
 
   if (!loggedIn) {
     return <LoginForm onLogin={() => setLoggedIn(true)} />;
@@ -489,8 +498,26 @@ export default function AdminDashboard() {
           Ausloggen
         </button>
       </div>
-      <PendingQueue />
-      <SourceManager />
+      <div className="mode-switch admin-tabs">
+        {TABS.map((t) => (
+          <button
+            key={t.key}
+            type="button"
+            className={tab === t.key ? 'mode-btn active' : 'mode-btn'}
+            onClick={() => setTab(t.key)}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+      {tab === 'events' && (
+        <>
+          <PendingQueue />
+          <SourceManager />
+        </>
+      )}
+      {tab === 'jobs' && <JobsAdmin />}
+      {tab === 'companies' && <CompaniesAdmin />}
     </div>
   );
 }
