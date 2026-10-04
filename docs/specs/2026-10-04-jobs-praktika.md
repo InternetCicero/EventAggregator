@@ -1,7 +1,7 @@
 # Spec: Jobs & Praktika (Empfehlungsnetzwerk)
 
 - **Status:** Implemented (lokal)
-- **Version:** 4
+- **Version:** 5
 - **Autor:** Laurenz Polanski (mit Claude)
 - **Erstellt:** 2026-10-04
 - **Approved:** 2026-10-04
@@ -55,7 +55,7 @@ Roadmap beschrieben und bekommen jeweils eine eigene Spec, bevor sie gebaut werd
 - Vorbefüllung per Link: schema.org `JobPosting` (JSON-LD) wird ausgelesen,
   analog zu `extractFromUrl` für Events
 - Firmen als eigene Entität (Name, Website, Branche, Größe)
-- Vibe-Schieberegler (7 Dimensionen, Skala 1–5, **Pflicht**)
+- Vibe-Schieberegler (7 Dimensionen, Skala 1–5, optional)
 - Leitfragen (5 Fragen, je max. 280 Zeichen, optional)
 - Empfehlungsnotiz „Warum ich das empfehle“ (Name + max. 400 Zeichen)
 - Kontaktkarte (Name, Rolle, „entscheidet mit: ja/nein“, optional E-Mail mit Einwilligung)
@@ -137,8 +137,8 @@ gefiltert wird. In v3 wird es für das Matching in JS ausgewertet.
 
 ### 3.4 Vibe-Dimensionen und Leitfragen
 
-Schieberegler, Skala 1–5. **Alle 7 Regler sind Pflicht.** Im Formular starten sie ungesetzt (kein vorausgewählter Mittelwert),
-damit niemand aus Bequemlichkeit überall „3“ stehen lässt:
+Schieberegler, Skala 1–5. **Jeder Regler ist optional**, nicht gesetzt bedeutet „keine Angabe“. Im Formular starten sie ungesetzt
+(kein vorausgewählter Mittelwert), ein zweiter Klick auf die gewählte Stufe hebt die Auswahl wieder auf:
 
 | Key | 1 ← | → 5 |
 |---|---|---|
@@ -225,7 +225,7 @@ Im bestehenden Cron in `server/src/index.js` läuft einmal täglich ein Job, der
 
 - **AC-1** WHEN eine Stelle über `POST /api/jobs` mit `title`, `company_name`, `job_type` und `apply_url` oder `apply_email` eingereicht wird, THE SYSTEM SHALL sie mit `status = 'pending'` speichern und `201` zurückgeben.
 - **AC-2** WHEN `title`, `company_name` oder `job_type` fehlt, `job_type` nicht in `jobTypes.js` steht oder weder `apply_url` noch `apply_email` gesetzt ist, THE SYSTEM SHALL mit `400` und einer deutschen Fehlermeldung antworten.
-- **AC-3** WHEN eine Stelle eingereicht oder vom Admin bearbeitet wird und `vibe` nicht für **alle** in `vibe.js` definierten Dimensionen eine ganze Zahl von 1–5 enthält, THE SYSTEM SHALL mit `400` antworten und die fehlenden Dimensionen nennen. Unbekannte Keys werden verworfen. Im Formular ist „Einreichen“ deaktiviert, solange ein Regler ungesetzt ist.
+- **AC-3** WHEN eine Stelle eingereicht oder vom Admin bearbeitet wird, THE SYSTEM SHALL fehlende Vibe-Regler als „keine Angabe“ akzeptieren, gesetzte Werte außerhalb der ganzen Zahlen 1–5 mit `400` ablehnen (mit Namen des Reglers) und unbekannte Keys verwerfen.
 - **AC-4** WHEN eine Leitfragen-Antwort länger als 280 Zeichen oder `referrer_note` länger als 400 Zeichen ist, THE SYSTEM SHALL mit `400` antworten.
 - **AC-5** WHEN `contact_email` gesetzt ist, `contact_consent` aber nicht `true`, THE SYSTEM SHALL `contact_email` nicht speichern.
 - **AC-6** WHEN die Einwilligungs-Checkbox im Formular nicht gesetzt ist, THE SYSTEM SHALL das Absenden im Client verhindern und `POST /api/jobs` ohne `consent: true` mit `400` ablehnen.
@@ -272,7 +272,7 @@ Tests mit `node --test` im bestehenden Stil (`EVENTS_DB_PATH=:memory:`), Dateien
 | bestehende Tests + `migration.test.js` erweitert | AC-20 |
 
 Frontend: `npm run build` und `npm run lint` müssen grün sein (wie in CI). Dazu ein manueller
-Durchlauf im Browser: Einreichen (inkl. gesperrtem Button bei fehlendem Regler, AC-3) → Admin freigeben → Liste/Filter → Detail → Footer-Link Datenschutz (AC-21).
+Durchlauf im Browser: Einreichen (Regler setzen und per zweitem Klick wieder entfernen, AC-3) → Admin freigeben → Liste/Filter → Detail → Footer-Link Datenschutz (AC-21).
 
 ### 3.11 Tasks (v1)
 
@@ -372,13 +372,14 @@ Kurze rechtliche Einschätzung einholen, z. B. über die Hochschul-Rechtsberatun
 
 Keine offenen Fragen.
 
-Geklärt: Name „Student Hub“ (Domain bleibt student.laurenz-polanski.de) · Bewerben nur extern (Link/`mailto:`) · Ablauf nach 90 Tagen ohne Deadline · Vibe-Regler Pflicht, Leitfragen optional · Datenschutz-Kontakt consulting@laurenz-polanski.de
+Geklärt: Name „Student Hub“ (Domain bleibt student.laurenz-polanski.de) · Bewerben nur extern (Link/`mailto:`) · Ablauf nach 90 Tagen ohne Deadline · Vibe-Regler und Leitfragen optional · Datenschutz-Kontakt consulting@laurenz-polanski.de
 
 ## 8. Changelog
 
 | Version | Datum | Änderung |
 |---|---|---|
 | 1 | 2026-10-04 | Erster Entwurf: v1 detailliert, v2–v4 als Roadmap |
+| 5 | 2026-10-04 | Vibe-Regler optional statt Pflicht (AC-3 geändert, Wunsch nach erstem Praxistest) |
 | 4 | 2026-10-04 | Name „Student Hub“ festgelegt (AC-22, T16), keine offenen Fragen mehr |
 | 3 | 2026-10-04 | Vibe-Regler Pflicht (AC-3 verschärft), Leitfragen optional; Datenschutzseite mit consulting@laurenz-polanski.de (AC-21, T14); offene Fragen 1–3 und 5 geklärt |
 | 2 | 2026-10-04 | Verknüpfung Firma ↔ Events aus v1 entfernt und nach v2 verschoben (vorher AC-16/17, Abschnitt 3.6). ACs neu nummeriert: AC-16 bis AC-20 |

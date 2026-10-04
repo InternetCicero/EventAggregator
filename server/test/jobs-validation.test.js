@@ -37,16 +37,30 @@ test('AC-2: Bewerbungslink muss http(s) sein', () => {
   assert.ok(errors.some((e) => e.includes('http(s)')));
 });
 
-test('AC-3: fehlender Vibe-Regler wird mit Namen gemeldet', () => {
+test('AC-3: Vibe-Regler sind optional, fehlende Regler sind kein Fehler', () => {
   const vibe = fullVibe();
   delete vibe.social;
-  const { errors } = validateJob(makeJobInput({ vibe }));
-  assert.ok(errors.some((e) => e.includes('Vibe-Regler') && e.includes('social')));
+  const { errors, job } = validateJob(makeJobInput({ vibe }));
+  assert.deepEqual(errors, []);
+  assert.equal(job.vibe.social, undefined);
+  assert.equal(Object.keys(job.vibe).length, 6);
 });
 
-test('AC-3: Werte außerhalb 1–5 und Kommazahlen sind ungültig', () => {
+test('AC-3: ganz ohne vibe-Objekt gültig', () => {
+  const { errors, job } = validateJob(makeJobInput({ vibe: undefined }));
+  assert.deepEqual(errors, []);
+  assert.deepEqual(job.vibe, {});
+});
+
+test('AC-3: leere Werte gelten als "keine Angabe"', () => {
+  const { errors, job } = validateJob(makeJobInput({ vibe: { structure: '', guidance: null, language: 4 } }));
+  assert.deepEqual(errors, []);
+  assert.deepEqual(job.vibe, { language: 4 });
+});
+
+test('AC-3: gesetzte Werte außerhalb 1–5 und Kommazahlen sind ungültig', () => {
   for (const bad of [0, 6, 2.5, 'abc']) {
-    const { errors } = validateJob(makeJobInput({ vibe: { ...fullVibe(), structure: bad } }));
+    const { errors } = validateJob(makeJobInput({ vibe: { structure: bad } }));
     assert.ok(errors.some((e) => e.includes('structure')), `Wert ${bad} hätte abgelehnt werden müssen`);
   }
 });
@@ -56,11 +70,6 @@ test('AC-3: unbekannte Vibe-Keys werden verworfen', () => {
   assert.deepEqual(errors, []);
   assert.equal(job.vibe.coolness, undefined);
   assert.equal(Object.keys(job.vibe).length, 7);
-});
-
-test('AC-3: kein vibe-Objekt => alle 7 fehlen', () => {
-  const { errors } = validateJob(makeJobInput({ vibe: undefined }));
-  assert.ok(errors.some((e) => e.includes('structure') && e.includes('social')));
 });
 
 test('AC-4: Leitfragen-Antwort über 280 Zeichen', () => {

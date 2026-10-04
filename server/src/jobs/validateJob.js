@@ -120,16 +120,19 @@ function validateJob(input = {}, { requireConsent = true } = {}) {
     if (job[field] && !DATE_RE.test(job[field])) errors.push(`${label} muss im Format JJJJ-MM-TT sein`);
   }
 
-  // Vibe-Regler: alle Pflicht, ganze Zahl 1–5, unbekannte Keys fallen weg (AC-3)
+  // Vibe-Regler: optional; gesetzte Werte müssen ganze Zahlen 1–5 sein,
+  // unbekannte Keys fallen weg (AC-3)
   const rawVibe = input.vibe && typeof input.vibe === 'object' ? input.vibe : {};
   const vibe = {};
-  const missing = [];
+  const invalid = [];
   for (const { key } of dimensions) {
-    const value = Number(rawVibe[key]);
+    const raw = rawVibe[key];
+    if (raw === undefined || raw === null || raw === '') continue;
+    const value = Number(raw);
     if (Number.isInteger(value) && value >= 1 && value <= 5) vibe[key] = value;
-    else missing.push(key);
+    else invalid.push(key);
   }
-  if (missing.length) errors.push(`Vibe-Regler fehlen oder sind ungültig: ${missing.join(', ')}`);
+  if (invalid.length) errors.push(`Vibe-Regler ungültig (erlaubt sind 1–5): ${invalid.join(', ')}`);
   job.vibe = vibe;
 
   // Leitfragen: optional, max. 280 Zeichen (AC-4)

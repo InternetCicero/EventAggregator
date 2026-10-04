@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
 import JobFields from '../components/JobFields';
-import { emptyJobForm, missingVibe } from '../lib/jobForm';
+import { emptyJobForm } from '../lib/jobForm';
 
 export default function SubmitJob() {
   const [meta, setMeta] = useState(null);
@@ -45,7 +45,7 @@ export default function SubmitJob() {
         apply_url: r.apply_url || linkInput,
       }));
       if (r.matched === 'json-ld') {
-        setLinkMatchInfo('Stellenanzeige erkannt. Bitte prüfen und Vibe-Regler ergänzen.');
+        setLinkMatchInfo('Stellenanzeige erkannt. Bitte prüfen und, wenn möglich, Vibe-Regler ergänzen.');
       } else if (r.matched === 'opengraph') {
         setLinkMatchInfo('Nur allgemeine Seiteninfos gefunden. Bitte die Felder ergänzen.');
       } else {
@@ -76,8 +76,7 @@ export default function SubmitJob() {
     }
   }
 
-  const vibeMissing = missingVibe(meta, form.vibe).length;
-  const canSubmit = meta && consent && vibeMissing === 0 && status !== 'sending';
+  const canSubmit = meta && consent && status !== 'sending';
 
   return (
     <div className="submit-page">
@@ -130,10 +129,7 @@ export default function SubmitJob() {
         <button type="submit" disabled={!canSubmit}>
           {status === 'sending' ? 'Wird gesendet…' : 'Stelle einreichen'}
         </button>
-        {meta && vibeMissing > 0 && (
-          <p className="hint">Zum Einreichen bitte alle {meta.dimensions.length} Vibe-Regler setzen.</p>
-        )}
-        {meta && vibeMissing === 0 && !consent && <p className="hint">Zum Einreichen bitte die Einwilligung bestätigen.</p>}
+        {meta && !consent && <p className="hint">Zum Einreichen bitte die Einwilligung bestätigen.</p>}
         {status === 'error' && <p className="error">Fehler: {errorMsg}</p>}
       </form>
     </div>

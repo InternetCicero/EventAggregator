@@ -1,12 +1,13 @@
 // Vibe-Regler: fünf Stufen zwischen zwei Polen. Als Knopfreihe statt
-// <input type="range">, weil ein Regler bewusst auch "noch nicht gesetzt"
-// sein muss (Pflichtfeld ohne vorausgewählte Mitte, Spec AC-3).
+// <input type="range">, weil ein Regler auch "keine Angabe" sein kann
+// (optional, keine vorausgewählte Mitte, Spec AC-3). Ein zweiter Klick auf
+// die gewählte Stufe hebt die Auswahl wieder auf.
 
 export function VibeInput({ dimensions, value, onChange }) {
   return (
     <div className="vibe-list">
       {dimensions.map((d) => (
-        <fieldset key={d.key} className={`vibe-row${value[d.key] ? '' : ' is-unset'}`}>
+        <fieldset key={d.key} className="vibe-row">
           <legend className="visually-hidden">
             {d.left} bis {d.right}
           </legend>
@@ -20,7 +21,12 @@ export function VibeInput({ dimensions, value, onChange }) {
                 aria-checked={value[d.key] === step}
                 aria-label={`Stufe ${step} von 5`}
                 className={value[d.key] === step ? 'vibe-step is-active' : 'vibe-step'}
-                onClick={() => onChange({ ...value, [d.key]: step })}
+                onClick={() => {
+                  const next = { ...value };
+                  if (next[d.key] === step) delete next[d.key];
+                  else next[d.key] = step;
+                  onChange(next);
+                }}
               />
             ))}
           </div>

@@ -792,10 +792,6 @@ button:disabled {
   border-radius: 4px;
 }
 
-fieldset.vibe-row.is-unset {
-  background: rgba(192, 133, 82, 0.08);
-}
-
 .vibe-pole {
   font-size: 0.85rem;
   color: var(--text);

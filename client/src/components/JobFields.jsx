@@ -1,6 +1,5 @@
 import { VibeInput } from './VibeSliders';
 import { DEGREE_LABELS, PAID_LABELS, WORK_MODE_LABELS } from '../lib/jobLabels';
-import { missingVibe } from '../lib/jobForm';
 
 // Gemeinsame Formularfelder für "Stelle einreichen" und die Bearbeitung im
 // Admin-Bereich. Der Zustand liegt beim Aufrufer (form/update).
@@ -19,8 +18,6 @@ export default function JobFields({ form, update, meta }) {
     else set.add(code);
     update('languages', [...set]);
   }
-
-  const missing = missingVibe(meta, form.vibe);
 
   return (
     <>
@@ -158,17 +155,13 @@ export default function JobFields({ form, update, meta }) {
         <input type="date" value={form.deadline} onChange={(e) => update('deadline', e.target.value)} />
       </label>
 
-      <h2 className="form-section">3. Vibe *</h2>
+      <h2 className="form-section">3. Vibe (optional)</h2>
       <p className="hint">
         Wo liegt die Stelle zwischen den beiden Polen? Es gibt kein Richtig oder Falsch. Ehrliche Angaben helfen
-        Bewerber:innen, einzuschätzen, ob sie hineinpassen.
+        Bewerber:innen, einzuschätzen, ob sie hineinpassen. Regler, zu denen du nichts weißt, einfach leer lassen. Ein
+        zweiter Klick auf die gewählte Stufe hebt sie wieder auf.
       </p>
       <VibeInput dimensions={meta.dimensions} value={form.vibe} onChange={(v) => update('vibe', v)} />
-      {missing.length > 0 && (
-        <p className="hint">
-          Noch {missing.length} von {meta.dimensions.length} Reglern offen.
-        </p>
-      )}
 
       <h2 className="form-section">4. Leitfragen (optional)</h2>
       <p className="hint">Kurz und konkret, maximal {meta.answerMaxLength} Zeichen pro Antwort.</p>

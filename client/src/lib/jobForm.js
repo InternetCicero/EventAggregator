@@ -43,9 +43,6 @@ export function jobToForm(job) {
   return form;
 }
 
-export function missingVibe(meta, vibe) {
-  return (meta?.dimensions || []).filter((d) => !vibe[d.key]);
-}
 
 // Filterzustand der Stellenübersicht (/jobs)
 export const emptyJobFilters = {

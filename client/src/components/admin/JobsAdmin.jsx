@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../api';
 import JobFields from '../JobFields';
-import { jobToForm, missingVibe } from '../../lib/jobForm';
+import { jobToForm } from '../../lib/jobForm';
 import { jobTypeLabel } from '../../lib/jobLabels';
 
 const BULK_LABELS = { approve: 'freigeben', reject: 'ablehnen', delete: 'löschen' };
@@ -71,7 +71,7 @@ function JobEditor({ job, meta, companies, onSaved, onCancel }) {
         </label>
       </div>
       <JobFields form={form} update={update} meta={meta} />
-      <button type="submit" disabled={saving || missingVibe(meta, form.vibe).length > 0}>
+      <button type="submit" disabled={saving}>
         {saving ? 'Speichert…' : 'Änderungen speichern'}
       </button>
       {error && <p className="error">Fehler: {error}</p>}
