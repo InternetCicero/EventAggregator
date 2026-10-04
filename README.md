@@ -1,6 +1,6 @@
-# Laurenz Event Verteiler
+# Student Hub
 
-Website zum Sammeln und Anzeigen von lokalen Events aus mehreren Quellen — manuell eingereicht oder automatisch von konfigurierten Websites gescrapt. Kein API-Key, keine KI beteiligt.
+Website (student.laurenz-polanski.de) zum Sammeln und Anzeigen von Karriere-Events und empfohlenen Stellen (Praktika, Werkstudentenjobs, Einstiegsjobs). Events werden manuell eingereicht oder automatisch von konfigurierten Websites gescrapt, Stellen werden eingereicht und moderiert. Kein API-Key, keine KI beteiligt.
 
 ## Struktur
 
@@ -38,6 +38,19 @@ npm run dev
 - **Automatisches Scraping**: pro Quelle werden CSS-Selektoren definiert (Listen-Element, Titel, Datum, Ort, Link, Beschreibung); optional per Checkbox mit Headless-Browser-Rendering (Playwright) für Seiten, die Events per JavaScript nachladen. Ein Cron-Job läuft alle 6 Stunden (`server/src/index.js`) und ruft alle aktiven Quellen ab. Gescrapte Events landen ebenfalls zuerst als "pending".
 - Duplikate werden über die Event-URL erkannt und übersprungen.
 - Die Link-Extraktion blockiert Anfragen an lokale/private Adressen (SSRF-Schutz).
+
+## Jobs & Praktika
+
+Spezifikation: [docs/specs/2026-10-04-jobs-praktika.md](docs/specs/2026-10-04-jobs-praktika.md) (v1 umgesetzt, v2–v4 Roadmap).
+
+- **Übersicht** (`/jobs`): filterbar nach Stellenart, Abschluss, Semester, Arbeitsmodell, Bezahlung, Sprache, Branche, Ort, „Gehalt angegeben“
+- **Detailseite** (`/jobs/:id`): Eckdaten, Vibe-Regler, Antworten auf Leitfragen, Empfehlungsnotiz, Kontaktkarte, Bewerben-Button (externer Link oder `mailto:`)
+- **Stelle einreichen** (`/jobs/einreichen`): optional Vorbefüllung per Link (schema.org `JobPosting`), alle 7 Vibe-Regler Pflicht, Leitfragen optional (max. 280 Zeichen), Einwilligung der genannten Personen Pflicht. Landet als „pending“
+- **Admin** → Reiter „Stellen“ (freigeben/ablehnen/löschen, bearbeiten, Firma zuordnen) und „Firmen“ (Name, Website, Branche, Größe)
+- **Ablauf**: täglich um 3:15 Uhr werden Stellen mit abgelaufener Bewerbungsfrist bzw. ohne Frist nach `JOB_MAX_AGE_DAYS` Tagen (Standard 90) ohne Aktualisierung auf „expired“ gesetzt
+- **Datenschutz** (`/datenschutz`): Kontakt für Auskunft/Löschung consulting@laurenz-polanski.de
+
+Für ein zweites Backend parallel (z. B. mit Testdatenbank) kann der Vite-Proxy per `API_TARGET=http://localhost:4001` umgelenkt werden; die Datenbank lässt sich mit `EVENTS_DB_PATH` wählen.
 
 ## Deployment
 

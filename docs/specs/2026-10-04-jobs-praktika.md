@@ -1,6 +1,6 @@
 # Spec: Jobs & Praktika (Empfehlungsnetzwerk)
 
-- **Status:** Approved
+- **Status:** Implemented (lokal)
 - **Version:** 4
 - **Autor:** Laurenz Polanski (mit Claude)
 - **Erstellt:** 2026-10-04
@@ -276,22 +276,22 @@ Durchlauf im Browser: Einreichen (inkl. gesperrtem Button bei fehlendem Regler, 
 
 ### 3.11 Tasks (v1)
 
-- [ ] T1 `jobTypes.js`, `sectors.js`, `vibe.js` anlegen (AC-2, AC-3)
-- [ ] T2 Tabellen `companies`, `jobs` in `db/index.js`, Migrationstest erweitern (AC-20)
-- [ ] T3 `jobsRepo.js` mit create/list/get/update/bulk/expire (AC-1, AC-8, AC-10–13, AC-18, AC-19)
-- [ ] T4 Validierungsmodul `jobs/validateJob.js` (AC-2–AC-7)
-- [ ] T5 `companiesRepo.js` (CRUD für Firmen, AC-9)
-- [ ] T6 `routes/jobs.js` + Einbindung in `index.js` (AC-1, AC-2, AC-10–15)
-- [ ] T7 Admin-Endpunkte für Jobs/Firmen in `routes/admin.js` (AC-8, AC-9)
-- [ ] T8 `extractJobFromUrl` (AC-16, AC-17)
-- [ ] T9 Ablauf-Job im Cron (AC-18, AC-19)
-- [ ] T10 Frontend: `JobList`, `JobCard`, Filter (AC-10–13)
-- [ ] T11 Frontend: `JobDetail`, `VibeSliders` Anzeige, Kontaktkarte (AC-15)
-- [ ] T12 Frontend: `SubmitJob` mit Link-Vorbefüllung, Zeichenzählern, Einwilligung (AC-6, AC-16)
-- [ ] T13 Frontend: Admin-Reiter Stellen & Firmen (AC-8)
-- [ ] T14 Seite `/datenschutz` + Footer-Link (AC-21)
-- [ ] T15 README um Jobs-Bereich ergänzen
-- [ ] T16 Umbenennung in „Student Hub“: Header, Footer, `<title>` in `client/index.html`, README-Überschrift (AC-22)
+- [x] T1 `jobTypes.js`, `sectors.js`, `vibe.js` anlegen (AC-2, AC-3)
+- [x] T2 Tabellen `companies`, `jobs` in `db/index.js`, Migrationstest erweitern (AC-20)
+- [x] T3 `jobsRepo.js` mit create/list/get/update/bulk/expire (AC-1, AC-8, AC-10–13, AC-18, AC-19)
+- [x] T4 Validierungsmodul `jobs/validateJob.js` (AC-2–AC-7)
+- [x] T5 `companiesRepo.js` (CRUD für Firmen, AC-9)
+- [x] T6 `routes/jobs.js` + Einbindung in `index.js` (AC-1, AC-2, AC-10–15)
+- [x] T7 Admin-Endpunkte für Jobs/Firmen in `routes/admin.js` (AC-8, AC-9)
+- [x] T8 `extractJobFromUrl` (AC-16, AC-17)
+- [x] T9 Ablauf-Job im Cron (AC-18, AC-19)
+- [x] T10 Frontend: `JobList`, `JobCard`, Filter (AC-10–13)
+- [x] T11 Frontend: `JobDetail`, `VibeSliders` Anzeige, Kontaktkarte (AC-15)
+- [x] T12 Frontend: `SubmitJob` mit Link-Vorbefüllung, Zeichenzählern, Einwilligung (AC-6, AC-16)
+- [x] T13 Frontend: Admin-Reiter Stellen & Firmen (AC-8)
+- [x] T14 Seite `/datenschutz` + Footer-Link (AC-21)
+- [x] T15 README um Jobs-Bereich ergänzen
+- [x] T16 Umbenennung in „Student Hub“: Header, Footer, `<title>` in `client/index.html`, README-Überschrift (AC-22)
 
 ### 3.12 Annahmen (v1)
 

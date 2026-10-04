@@ -44,6 +44,26 @@ export const api = {
     return fetch(`${BASE}/events/extract-image`, { method: 'POST', body: formData }).then(handle);
   },
 
+  // Jobs & Praktika
+  getJobsMeta: () => fetch(`${BASE}/jobs/meta`).then(handle),
+  getJobs: (params = {}) => {
+    const qs = new URLSearchParams(Object.entries(params).filter(([, v]) => v));
+    return fetch(`${BASE}/jobs?${qs.toString()}`).then(handle);
+  },
+  getJob: (id) => fetch(`${BASE}/jobs/${id}`).then(handle),
+  submitJob: (data) =>
+    fetch(`${BASE}/jobs`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }).then(handle),
+  extractJobFromLink: (url) =>
+    fetch(`${BASE}/jobs/extract-link`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+    }).then(handle),
+
   admin: {
     login: (user, pass) => {
       const creds = btoa(`${user}:${pass}`);
@@ -72,6 +92,36 @@ export const api = {
         headers: { 'Content-Type': 'application/json', ...authHeader() },
         body: JSON.stringify({ ids, action }),
       }).then(handle),
+
+    getJobs: (status) => fetch(`${BASE}/admin/jobs?status=${status}`, { headers: authHeader() }).then(handle),
+    updateJob: (id, data) =>
+      fetch(`${BASE}/admin/jobs/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...authHeader() },
+        body: JSON.stringify(data),
+      }).then(handle),
+    bulkJobAction: (ids, action) =>
+      fetch(`${BASE}/admin/jobs/bulk`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeader() },
+        body: JSON.stringify({ ids, action }),
+      }).then(handle),
+
+    getCompanies: () => fetch(`${BASE}/admin/companies`, { headers: authHeader() }).then(handle),
+    createCompany: (data) =>
+      fetch(`${BASE}/admin/companies`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeader() },
+        body: JSON.stringify(data),
+      }).then(handle),
+    updateCompany: (id, data) =>
+      fetch(`${BASE}/admin/companies/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...authHeader() },
+        body: JSON.stringify(data),
+      }).then(handle),
+    deleteCompany: (id) =>
+      fetch(`${BASE}/admin/companies/${id}`, { method: 'DELETE', headers: authHeader() }).then(handle),
 
     getSources: () => fetch(`${BASE}/admin/sources`, { headers: authHeader() }).then(handle),
     createSource: (data) =>
