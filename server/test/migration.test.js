@@ -156,6 +156,12 @@ test('Migration: Quellen-Standardkategorie wird auf die neue Taxonomie gehoben',
   assert.equal(row.category, 'Consulting');
 });
 
+test('Migration: Quellen bekommen die Blätter-Spalten mit Standard "eine Seite"', () => {
+  const row = db.prepare("SELECT next_selector, max_pages FROM sources WHERE name = 'PwC Karriere-Events'").get();
+  assert.equal(row.next_selector, null);
+  assert.equal(row.max_pages, 1);
+});
+
 test('Migration: schema_version steht danach auf dem aktuellen Stand', () => {
   const { user_version } = db.prepare('PRAGMA user_version').get();
   assert.ok(user_version >= 5);

@@ -66,3 +66,15 @@ Im Admin-Bereich unter "Automatische Quellen" → "+ Neue Quelle":
 3. Datum wird versucht als ISO (`YYYY-MM-DD`) oder deutsches Format (`DD.MM.YYYY`) zu erkennen; `datetime`/`content`-Attribute werden bevorzugt, falls vorhanden
 
 Am besten die Zielseite im Browser mit den Entwicklertools inspizieren, um die passenden Selektoren zu finden.
+
+### Mehrere Seiten durchblättern
+
+Zeigt eine Seite ihre Events auf mehreren Seiten, bei denen sich nur der Inhalt, nicht die Adresse ändert (z. B. Seitenzahlen oder "Weiter"), kann der Scraper durchklicken:
+
+1. Häkchen "Seite lädt Events per JavaScript nach" setzen (Blättern braucht den Browser)
+2. **Nächste-Seite-Selektor**: CSS-Selektor des "Weiter"-Knopfs, z. B. `[aria-label="Go to next page"]`
+3. **Max. Seiten**: wie viele Seiten höchstens gelesen werden (1–50, Standard 1)
+
+Der Lauf stoppt früher, wenn der Knopf fehlt oder gesperrt ist oder sich der Inhalt nach dem Klick nicht mehr ändert (letzte Seite). Ein Lauf hat ein Zeitbudget von 2 Minuten fürs Blättern. Bei Seiten, die nach Datum sortiert sind, begrenzt "Max. Seiten" praktisch den Zeitraum.
+
+Beispiel Hackathon Hub: Listen-URL `https://hackathonhub.eu/events`, Item `a.block.group`, Nächste-Seite-Selektor `[aria-label="Go to next page"]`, Max. Seiten `50` liest alle rund 400 Events (34 Seiten, ca. 45 Sekunden).

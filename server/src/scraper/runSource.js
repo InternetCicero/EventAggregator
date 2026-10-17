@@ -117,7 +117,37 @@ async function fetchStaticHtml(url) {
   return res.text();
 }
 
-async function fetchRenderedHtml(url, itemSelector) {
+// Blättern: Seitenzahlen/"Weiter"-Knöpfe, die nur im Browser umschalten (die
+// Adresse bleibt gleich), lassen sich per Klick durchlaufen. Jede Seite wird
+// als HTML-Momentaufnahme gesammelt. Abbruch bei: fehlendem oder gesperrtem
+// Knopf, Klickfehler, unverändertem Inhalt nach dem Klick (letzte Seite),
+// erreichtem max_pages oder überschrittenem Zeitbudget.
+const PAGE_CLICK_TIMEOUT_MS = 5000;
+const PAGE_CHANGE_TIMEOUT_MS = 8000;
+const PAGINATION_BUDGET_MS = 120000;
+
+// Ist der "Weiter"-Knopf gesperrt? Geprüft werden das disabled-Attribut,
+// aria-disabled und eine Klasse, die selbst "disabled" heißt (auch "is-disabled",
+// "btn--disabled"). Tailwind-Varianten wie "disabled:pointer-events-none"
+// stehen an jedem Knopf und bedeuten nur "Stil, falls gesperrt", nicht "ist
+// gesperrt" — sie dürfen nicht zählen. Greift das nicht (eine letzte Seite
+// ohne erkennbare Sperre), bricht der Abruf ohnehin ab, sobald sich der
+// Inhalt nach dem Klick nicht mehr ändert.
+function looksDisabled({ disabled, ariaDisabled, className } = {}) {
+  if (disabled || ariaDisabled === 'true') return true;
+  return String(className || '')
+    .split(/\s+/)
+    .some((token) => !token.includes(':') && /(^|[-_])disabled($|[-_])/i.test(token));
+}
+
+async function itemSignature(page, itemSelector) {
+  return page.evaluate((sel) => {
+    const items = [...document.querySelectorAll(sel)];
+    return items.length + '::' + items.slice(0, 5).map((e) => e.textContent.trim()).join('|').slice(0, 2000);
+  }, itemSelector);
+}
+
+async function fetchRenderedPages(url, { itemSelector, nextSelector, maxPages = 1 } = {}) {
   const { chromium } = require('playwright');
   const browser = await chromium.launch();
   try {
@@ -133,14 +163,56 @@ async function fetchRenderedHtml(url, itemSelector) {
     } else {
       await page.waitForTimeout(3000);
     }
-    return await page.content();
+    const pages = [await page.content()];
+    if (!nextSelector || !itemSelector) return pages;
+
+    const deadline = Date.now() + PAGINATION_BUDGET_MS;
+    while (pages.length < maxPages && Date.now() < deadline) {
+      const next = page.locator(nextSelector).first();
+      if ((await next.count()) === 0) break;
+      const state = await next.evaluate((el) => ({
+        disabled: !!el.disabled,
+        ariaDisabled: el.getAttribute('aria-disabled'),
+        className: typeof el.className === 'string' ? el.className : '',
+      }));
+      if (looksDisabled(state)) break;
+
+      const before = await itemSignature(page, itemSelector);
+      try {
+        await next.click({ timeout: PAGE_CLICK_TIMEOUT_MS });
+      } catch {
+        break;
+      }
+      const changed = await page
+        .waitForFunction(
+          ([sel, sig]) => {
+            const items = [...document.querySelectorAll(sel)];
+            const now = items.length + '::' + items.slice(0, 5).map((e) => e.textContent.trim()).join('|').slice(0, 2000);
+            return now !== sig;
+          },
+          [itemSelector, before],
+          { timeout: PAGE_CHANGE_TIMEOUT_MS },
+        )
+        .then(() => true)
+        .catch(() => false);
+      if (!changed) break;
+      pages.push(await page.content());
+    }
+    return pages;
   } finally {
     await browser.close();
   }
 }
 
-async function fetchHtml(url, renderJs, itemSelector) {
-  return renderJs ? fetchRenderedHtml(url, itemSelector) : fetchStaticHtml(url);
+// Liefert eine Liste von HTML-Seiten (bei statischen Quellen genau eine).
+// Blättern funktioniert nur mit Browser-Rendering, weil der Klick JavaScript braucht.
+async function fetchPages(source) {
+  if (!source.render_js) return [await fetchStaticHtml(source.list_url)];
+  return fetchRenderedPages(source.list_url, {
+    itemSelector: source.item_selector,
+    nextSelector: source.next_selector,
+    maxPages: source.max_pages,
+  });
 }
 
 function cleanText($el) {
@@ -170,9 +242,9 @@ function classifyEvent(title, defaultCategory, tags) {
   return { category, tags: withTag };
 }
 
-async function runSource(source) {
-  const html = await fetchHtml(source.list_url, source.render_js, source.item_selector);
-  const $ = cheerio.load(html);
+// deps.fetchPages ist für Tests austauschbar (ohne Netzwerk/Browser).
+async function runSource(source, deps = {}) {
+  const pages = await (deps.fetchPages || fetchPages)(source);
 
   const defaultTags = (source.default_tags || '')
     .split(',')
@@ -183,71 +255,78 @@ async function runSource(source) {
   let skipped = 0;
   let failed = 0;
 
-  const items = $(source.item_selector).toArray();
+  let total = 0;
 
-  for (const el of items) {
-    try {
-      const $el = $(el);
-      const $title = $el.find(source.title_selector).first();
-      const title = cleanText($title) || $title.attr('content');
-      if (!title) { failed++; continue; }
+  for (const html of pages) {
+    const $ = cheerio.load(html);
+    const items = $(source.item_selector).toArray();
+    total += items.length;
 
-      let rawDate = null;
-      if (source.date_selector) {
-        const $date = $el.find(source.date_selector).first();
-        rawDate = $date.attr('datetime') || $date.attr('content') || cleanText($date);
+    for (const el of items) {
+      try {
+        const $el = $(el);
+        const $title = $el.find(source.title_selector).first();
+        const title = cleanText($title) || $title.attr('content');
+        if (!title) { failed++; continue; }
+
+        let rawDate = null;
+        if (source.date_selector) {
+          const $date = $el.find(source.date_selector).first();
+          rawDate = $date.attr('datetime') || $date.attr('content') || cleanText($date);
+        }
+        const startDate = parseDateGuess(rawDate) || new Date().toISOString().slice(0, 16);
+
+        let location = source.location_selector
+          ? cleanText($el.find(source.location_selector).first())
+          : null;
+        // Der Ort-aus-Datum-Fallback gilt nur, wenn die Quelle gar keinen
+        // eigenen location_selector hat (Datum und Ort stehen dann im selben
+        // Textfeld, siehe SQUEAKER). Hat die Quelle einen location_selector,
+        // der bei einzelnen Karten nur leer bleibt (z. B. fehlendes "Ort"-Feld),
+        // darf das Datum nicht versehentlich als Ort landen.
+        if (!location && !source.location_selector && rawDate) {
+          location = extractTrailingLocation(rawDate);
+        }
+
+        let link = null;
+        if (source.link_selector) {
+          const $link = $el.find(source.link_selector).first();
+          link = resolveUrl(source.base_url, $link.attr(source.link_attr || 'href'));
+        } else if (el.tagName === 'a') {
+          link = resolveUrl(source.base_url, $el.attr('href'));
+        }
+
+        const description = source.description_selector
+          ? cleanText($el.find(source.description_selector).first())
+          : null;
+
+        if (link && eventsRepo.findDuplicateByUrlAndTitle(link, title)) { skipped++; continue; }
+
+        const { category, tags } = classifyEvent(title, source.category, defaultTags);
+        const format = inferFormat(location);
+
+        eventsRepo.createEvent({
+          title,
+          description,
+          category,
+          format,
+          start_date: startDate,
+          location,
+          url: link,
+          source: source.name,
+          status: 'pending',
+          tags,
+        });
+        inserted++;
+      } catch (err) {
+        failed++;
       }
-      const startDate = parseDateGuess(rawDate) || new Date().toISOString().slice(0, 16);
-
-      let location = source.location_selector
-        ? cleanText($el.find(source.location_selector).first())
-        : null;
-      // Der Ort-aus-Datum-Fallback gilt nur, wenn die Quelle gar keinen
-      // eigenen location_selector hat (Datum und Ort stehen dann im selben
-      // Textfeld, siehe SQUEAKER). Hat die Quelle einen location_selector,
-      // der bei einzelnen Karten nur leer bleibt (z. B. fehlendes "Ort"-Feld),
-      // darf das Datum nicht versehentlich als Ort landen.
-      if (!location && !source.location_selector && rawDate) {
-        location = extractTrailingLocation(rawDate);
-      }
-
-      let link = null;
-      if (source.link_selector) {
-        const $link = $el.find(source.link_selector).first();
-        link = resolveUrl(source.base_url, $link.attr(source.link_attr || 'href'));
-      } else if (el.tagName === 'a') {
-        link = resolveUrl(source.base_url, $el.attr('href'));
-      }
-
-      const description = source.description_selector
-        ? cleanText($el.find(source.description_selector).first())
-        : null;
-
-      if (link && eventsRepo.findDuplicateByUrlAndTitle(link, title)) { skipped++; continue; }
-
-      const { category, tags } = classifyEvent(title, source.category, defaultTags);
-      const format = inferFormat(location);
-
-      eventsRepo.createEvent({
-        title,
-        description,
-        category,
-        format,
-        start_date: startDate,
-        location,
-        url: link,
-        source: source.name,
-        status: 'pending',
-        tags,
-      });
-      inserted++;
-    } catch (err) {
-      failed++;
     }
   }
 
-  sourcesRepo.markRun(source.id, `ok: ${inserted} neu, ${skipped} Duplikate, ${failed} Fehler`);
-  return { inserted, skipped, failed, total: items.length };
+  const pageNote = pages.length > 1 ? `, ${pages.length} Seiten` : '';
+  sourcesRepo.markRun(source.id, `ok: ${inserted} neu, ${skipped} Duplikate, ${failed} Fehler${pageNote}`);
+  return { inserted, skipped, failed, total, pages: pages.length };
 }
 
 async function runAllActiveSources() {
@@ -274,4 +353,6 @@ module.exports = {
   classifyEvent,
   resolveUrl,
   cleanText,
+  fetchRenderedPages,
+  looksDisabled,
 };

@@ -7,6 +7,7 @@ const jobsRepo = require('../db/jobsRepo');
 const companiesRepo = require('../db/companiesRepo');
 const { validateJob } = require('../jobs/validateJob');
 const { runSource, runAllActiveSources } = require('../scraper/runSource');
+const { validateSourcePagination } = require('../scraper/validateSource');
 const db = require('../db/index');
 
 router.use(adminAuth);
@@ -158,11 +159,17 @@ router.get('/sources', (req, res) => {
 });
 
 router.post('/sources', (req, res) => {
+  const errors = validateSourcePagination(req.body || {});
+  if (errors.length) return res.status(400).json({ error: errors.join('. '), errors });
   const id = sourcesRepo.createSource(req.body);
   res.status(201).json({ id });
 });
 
 router.put('/sources/:id', (req, res) => {
+  const existing = sourcesRepo.getSource(req.params.id);
+  if (!existing) return res.status(404).json({ error: 'Quelle nicht gefunden' });
+  const errors = validateSourcePagination(req.body || {}, existing);
+  if (errors.length) return res.status(400).json({ error: errors.join('. '), errors });
   sourcesRepo.updateSource(req.params.id, req.body);
   res.json({ ok: true });
 });

@@ -60,6 +60,8 @@ CREATE TABLE IF NOT EXISTS sources (
   category TEXT NOT NULL DEFAULT 'Sonstiges',
   default_tags TEXT DEFAULT '',
   render_js INTEGER NOT NULL DEFAULT 0,
+  next_selector TEXT,
+  max_pages INTEGER NOT NULL DEFAULT 1,
   active INTEGER NOT NULL DEFAULT 1,
   last_run_at TEXT,
   last_run_status TEXT,
@@ -123,6 +125,15 @@ CREATE INDEX IF NOT EXISTS idx_jobs_company ON jobs(company_id);
 const sourceColumns = db.prepare("PRAGMA table_info(sources)").all().map((c) => c.name);
 if (!sourceColumns.includes('render_js')) {
   db.exec('ALTER TABLE sources ADD COLUMN render_js INTEGER NOT NULL DEFAULT 0');
+}
+
+// Blätter-Funktion: Selektor des "Nächste Seite"-Buttons und wie viele Seiten
+// höchstens eingelesen werden (1 = nur die erste Seite, wie bisher).
+if (!sourceColumns.includes('next_selector')) {
+  db.exec('ALTER TABLE sources ADD COLUMN next_selector TEXT');
+}
+if (!sourceColumns.includes('max_pages')) {
+  db.exec('ALTER TABLE sources ADD COLUMN max_pages INTEGER NOT NULL DEFAULT 1');
 }
 
 const eventColumns = db.prepare('PRAGMA table_info(events)').all().map((c) => c.name);

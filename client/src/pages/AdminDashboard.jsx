@@ -209,6 +209,8 @@ const emptySource = {
   category: 'Sonstiges',
   default_tags: '',
   render_js: false,
+  next_selector: '',
+  max_pages: 1,
 };
 
 function SourceManager() {
@@ -218,6 +220,7 @@ function SourceManager() {
   const [editingId, setEditingId] = useState(null);
   const [runResults, setRunResults] = useState({});
   const [showForm, setShowForm] = useState(false);
+  const [formError, setFormError] = useState('');
 
   function reload() {
     api.admin.getSources().then(setSources);
@@ -250,6 +253,8 @@ function SourceManager() {
       category: source.category,
       default_tags: source.default_tags || '',
       render_js: !!source.render_js,
+      next_selector: source.next_selector || '',
+      max_pages: source.max_pages || 1,
     });
     setShowForm(true);
   }
@@ -258,17 +263,23 @@ function SourceManager() {
     setShowForm(false);
     setEditingId(null);
     setForm(emptySource);
+    setFormError('');
   }
 
   async function handleSave(e) {
     e.preventDefault();
-    if (editingId) {
-      await api.admin.updateSource(editingId, form);
-    } else {
-      await api.admin.createSource(form);
+    setFormError('');
+    try {
+      if (editingId) {
+        await api.admin.updateSource(editingId, form);
+      } else {
+        await api.admin.createSource(form);
+      }
+      cancelForm();
+      reload();
+    } catch (err) {
+      setFormError(err.message);
     }
-    cancelForm();
-    reload();
   }
 
   async function handleRun(id) {
@@ -362,6 +373,26 @@ function SourceManager() {
             />
             Seite lädt Events per JavaScript nach (Headless-Browser zum Rendern nutzen)
           </label>
+          <div className="form-row">
+            <label>
+              Nächste-Seite-Selektor (optional, Knopf zum Weiterblättern, braucht das Häkchen oben)
+              <input
+                placeholder='z. B. [aria-label="Go to next page"]'
+                value={form.next_selector}
+                onChange={(e) => setForm({ ...form, next_selector: e.target.value })}
+              />
+            </label>
+            <label>
+              Max. Seiten (1–50)
+              <input
+                type="number"
+                min="1"
+                max="50"
+                value={form.max_pages}
+                onChange={(e) => setForm({ ...form, max_pages: e.target.value })}
+              />
+            </label>
+          </div>
           <label>
             Item-Selector * (ein CSS-Selektor pro Event-Eintrag, z. B. ".event-item")
             <input
@@ -426,6 +457,7 @@ function SourceManager() {
               onChange={(e) => setForm({ ...form, default_tags: e.target.value })}
             />
           </label>
+          {formError && <p className="error">Fehler: {formError}</p>}
           <button type="submit">{editingId ? 'Änderungen speichern' : 'Quelle speichern'}</button>
         </form>
       )}
