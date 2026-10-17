@@ -5,7 +5,8 @@ process.env.EVENTS_DB_PATH = ':memory:';
 
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { parseDateGuess, extractTrailingLocation } = require('../src/scraper/runSource');
+const cheerio = require('cheerio');
+const { parseDateGuess, extractTrailingLocation, cleanText } = require('../src/scraper/runSource');
 
 test('parseDateGuess: ISO-Datum', () => {
   assert.equal(parseDateGuess('2026-09-24'), '2026-09-24T00:00');
@@ -74,4 +75,31 @@ test('extractTrailingLocation: Ort nach Datum im selben Textfeld', () => {
 test('extractTrailingLocation: kein Ort nach dem Datum vorhanden', () => {
   assert.equal(extractTrailingLocation('29. August 2026'), null);
   assert.equal(extractTrailingLocation(''), null);
+});
+
+// cleanText: Kalender setzen Monat/Tag/Jahr in aufeinanderfolgende <span>s ohne
+// Leerraum (z.B. karriere.mckinsey.de). Ohne Trenner entstünde "Nov032026".
+function textOf(html, selector) {
+  const $ = cheerio.load(html);
+  return cleanText($(selector).first());
+}
+
+test('cleanText: trennt direkt aufeinanderfolgende Elemente durch ein Leerzeichen', () => {
+  const html = '<div class="d"><span>Nov</span><span>03</span><span>2026</span></div>';
+  assert.equal(textOf(html, '.d'), 'Nov 03 2026');
+});
+
+test('cleanText + parseDateGuess: McKinsey-Datumsblock ergibt ein gültiges Datum', () => {
+  const html = '<div class="d"><span>Nov</span><span>03</span><span>2026</span></div>';
+  assert.equal(parseDateGuess(textOf(html, '.d')), '2026-11-03T00:00');
+});
+
+test('cleanText: Leerzeichen vor Satzzeichen nach Inline-Elementen werden entfernt', () => {
+  const html = '<p class="d">Gastgeber ist <a href="#">Gilles Oubuih</a>, bitte anmelden.</p>';
+  assert.equal(textOf(html, '.d'), 'Gastgeber ist Gilles Oubuih, bitte anmelden.');
+});
+
+test('cleanText: versteckte Hilfstexte (sr-only, aria-hidden) bleiben ausgeschlossen', () => {
+  const html = '<div class="d"><span class="sr-only">Datum</span><span>Okt</span><span>09</span><i aria-hidden="true">x</i></div>';
+  assert.equal(textOf(html, '.d'), 'Okt 09');
 });

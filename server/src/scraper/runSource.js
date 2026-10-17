@@ -146,7 +146,16 @@ async function fetchHtml(url, renderJs, itemSelector) {
 function cleanText($el) {
   const $clone = $el.clone();
   $clone.find('.sr-only, .visually-hidden, [aria-hidden="true"]').remove();
-  return $clone.text().replace(/\s+/g, ' ').trim();
+  // Nach jedem Element ein Leerzeichen einfügen: Kalender setzen Monat, Tag
+  // und Jahr oft in aufeinanderfolgende <span>s ohne Leerraum dazwischen
+  // ("Nov"+"03"+"2026"), die .text() sonst zu "Nov032026" verklebt.
+  // Dadurch entstehende Leerzeichen vor Satzzeichen werden wieder entfernt.
+  $clone.find('*').after(' ');
+  return $clone
+    .text()
+    .replace(/\s+/g, ' ')
+    .replace(/\s+([,.;:!?])/g, '$1')
+    .trim();
 }
 
 // Titel-Schlüsselwörter (siehe classify.js) haben Vorrang vor der Standard-
@@ -264,4 +273,5 @@ module.exports = {
   extractTrailingLocation,
   classifyEvent,
   resolveUrl,
+  cleanText,
 };
