@@ -99,13 +99,13 @@ Gemeinsame Pflichtfelder wie v1: `id`, `title`, `description`, `category`, `type
 
 ## 8. Aufgaben
 
-- [ ] T1: `marked` installieren, Markdown-Rendering mit HTML-Escaping und Link-Bereinigung als eigene Funktion (AC-4, AC-5, AC-6)
-- [ ] T2: Format-Filter und kombinierte Filterlogik mit Leerzustand (AC-1, AC-2, AC-3)
-- [ ] T3: Karten für `text` (Lesen, Download) und `link` (Host, Button) (AC-4, AC-7, AC-11, AC-12)
-- [ ] T4: Karte für `bild` mit Vorschau, Großansicht, Download (AC-8, AC-9, AC-10)
-- [ ] T5: Bestehende Formate `prompt`/`datei` unverändert prüfen, Badges (AC-12, AC-13)
-- [ ] T6: Validator und Tests in `server/test/materials.test.js` erweitern (AC-14)
-- [ ] T7: README, Styles, mobile und Netzwerkprüfung (AC-15, AC-16)
+- [x] T1: `marked` installieren, Markdown-Rendering mit HTML-Escaping und Link-Bereinigung als eigene Funktion (AC-4, AC-5, AC-6)
+- [x] T2: Format-Filter und kombinierte Filterlogik mit Leerzustand (AC-1, AC-2, AC-3)
+- [x] T3: Karten für `text` (Lesen, Download) und `link` (Host, Button) (AC-4, AC-7, AC-11, AC-12)
+- [x] T4: Karte für `bild` mit Vorschau, Großansicht, Download (AC-8, AC-9, AC-10)
+- [x] T5: Bestehende Formate `prompt`/`datei` unverändert prüfen, Badges (AC-12, AC-13)
+- [x] T6: Validator und Tests in `server/test/materials.test.js` erweitern (AC-14)
+- [x] T7: README, Styles, mobile und Netzwerkprüfung (AC-15, AC-16)
 - [ ] T8: Nach dem Deploy live prüfen: Texte, Bild, Link, Direktaufruf von Dateien
 
 ## 9. Testplan

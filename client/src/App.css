@@ -1096,8 +1096,20 @@ button:disabled {
 .material-filter {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
-  margin: 16px 0 20px;
+  margin: 16px 0 0;
+}
+
+.material-filter + .material-filter,
+.material-filter:last-of-type {
+  margin-bottom: 20px;
+}
+
+.material-filter-label {
+  min-width: 56px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
 }
 
 .material-filter .btn-ghost.is-active {
@@ -1140,4 +1152,69 @@ button:disabled {
   margin-top: auto;
   color: var(--accent-hover);
   font-weight: 600;
+}
+
+.material-text {
+  margin: 10px 0;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.material-text h1,
+.material-text h2,
+.material-text h3 {
+  font-size: 1.05rem;
+  margin: 16px 0 6px;
+}
+
+.material-text p,
+.material-text ul,
+.material-text ol {
+  margin: 0 0 10px;
+}
+
+.material-text a {
+  color: var(--accent-hover);
+}
+
+.material-text code {
+  background: var(--navy-tint);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+.material-image-btn {
+  display: block;
+  padding: 0;
+  border: 1px solid var(--border);
+  background: var(--navy-tint);
+  cursor: zoom-in;
+}
+
+.material-image {
+  display: block;
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+}
+
+.material-dialog {
+  max-width: min(92vw, 1000px);
+  max-height: 92vh;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+}
+
+.material-dialog::backdrop {
+  background: rgba(16, 35, 63, 0.7);
+}
+
+.material-dialog img {
+  display: block;
+  max-width: 100%;
+  max-height: 78vh;
+  margin: 0 auto 10px;
 }
