@@ -183,18 +183,18 @@ async function fetchRenderedPages(url, { itemSelector, nextSelector, maxPages = 
       } catch {
         break;
       }
-      const changed = await page
-        .waitForFunction(
-          ([sel, sig]) => {
-            const items = [...document.querySelectorAll(sel)];
-            const now = items.length + '::' + items.slice(0, 5).map((e) => e.textContent.trim()).join('|').slice(0, 2000);
-            return now !== sig;
-          },
-          [itemSelector, before],
-          { timeout: PAGE_CHANGE_TIMEOUT_MS },
-        )
-        .then(() => true)
-        .catch(() => false);
+      // Auf neue Events warten. Wechselt der Klick die ganze Seite (normaler
+      // Link statt Inhaltstausch), ist der Ausführungskontext kurz weg und die
+      // Liste zwischendurch leer; beides darf weder als "letzte Seite" noch als
+      // neue Seite zählen. Daher abfragen, Fehler/leere Liste überspringen und
+      // erst bei geänderter, nicht leerer Liste übernehmen.
+      const changeDeadline = Date.now() + PAGE_CHANGE_TIMEOUT_MS;
+      let changed = false;
+      while (!changed && Date.now() < changeDeadline) {
+        const now = await itemSignature(page, itemSelector).catch(() => null);
+        if (now && now !== before && !now.startsWith('0::')) changed = true;
+        else await page.waitForTimeout(250);
+      }
       if (!changed) break;
       pages.push(await page.content());
     }
@@ -301,6 +301,12 @@ async function runSource(source, deps = {}) {
           : null;
 
         if (link && eventsRepo.findDuplicateByUrlAndTitle(link, title)) { skipped++; continue; }
+        // Ohne eigenen Link je Event: Duplikate über Titel + Startzeit erkennen
+        // und die Listen-URL als Anmelde-/Infolink verwenden.
+        if (!link) {
+          if (eventsRepo.findDuplicateByTitleAndStart(title, startDate)) { skipped++; continue; }
+          link = source.list_url;
+        }
 
         const { category, tags } = classifyEvent(title, source.category, defaultTags);
         const format = inferFormat(location);

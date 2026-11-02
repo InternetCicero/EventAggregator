@@ -144,6 +144,12 @@ function findDuplicateByUrlAndTitle(url, title) {
   return db.prepare('SELECT id FROM events WHERE url = ? AND title = ?').get(url, title);
 }
 
+// Für Quellen, deren Karten keinen eigenen Link haben (Details öffnen sich
+// per JavaScript): ohne URL bleibt nur Titel + Startzeit als Merkmal.
+function findDuplicateByTitleAndStart(title, startDate) {
+  return db.prepare('SELECT id FROM events WHERE title = ? AND start_date = ?').get(title, startDate);
+}
+
 function listAllTags() {
   return db.prepare('SELECT name FROM tags ORDER BY name ASC').all().map((r) => r.name);
 }
@@ -157,6 +163,7 @@ module.exports = {
   setEventTags,
   findDuplicateByUrl,
   findDuplicateByUrlAndTitle,
+  findDuplicateByTitleAndStart,
   listAllTags,
   bulkUpdateStatus,
   bulkDelete,
