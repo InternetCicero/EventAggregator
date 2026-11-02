@@ -78,4 +78,10 @@ Zeigt eine Seite ihre Events auf mehreren Seiten, bei denen sich nur der Inhalt,
 
 Der Lauf stoppt früher, wenn der Knopf fehlt oder gesperrt ist oder sich der Inhalt nach dem Klick nicht mehr ändert (letzte Seite). Ein Lauf hat ein Zeitbudget von 2 Minuten fürs Blättern. Bei Seiten, die nach Datum sortiert sind, begrenzt "Max. Seiten" praktisch den Zeitraum.
 
+Funktioniert auch, wenn der "Weiter"-Knopf ein normaler Link ist und die ganze Seite neu lädt (z. B. WU Wien: `.md-paging__arrow--next`).
+
+### Quellen ohne Link je Event
+
+Öffnen sich die Details per JavaScript und gibt es keine eigene Adresse pro Event (z. B. WU Wien), den Link-Selektor leer lassen. Duplikate werden dann über Titel + Startzeit erkannt, als Event-Link dient die Listen-URL.
+
 Beispiel Hackathon Hub: Listen-URL `https://hackathonhub.eu/events`, Item `a.block.group`, Nächste-Seite-Selektor `[aria-label="Go to next page"]`, Max. Seiten `50` liest alle rund 400 Events (34 Seiten, ca. 45 Sekunden).
