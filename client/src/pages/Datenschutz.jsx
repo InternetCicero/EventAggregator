@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 const CONTACT = 'consulting@laurenz-polanski.de';
 
 export default function Datenschutz() {
@@ -11,7 +13,7 @@ export default function Datenschutz() {
 
       <h2>Verantwortlich und Kontakt für Auskunft und Löschung</h2>
       <p>
-        Laurenz Polanski. Fragen zum Datenschutz, Auskunft über gespeicherte Daten oder Löschung: <a href={`mailto:${CONTACT}`}>{CONTACT}</a>
+        Laurenz Polanski (Anschrift siehe <Link to="/impressum">Impressum</Link>). Fragen zum Datenschutz, Auskunft über gespeicherte Daten oder Löschung: <a href={`mailto:${CONTACT}`}>{CONTACT}</a>
       </p>
 
       <h2>Welche Daten werden gespeichert?</h2>

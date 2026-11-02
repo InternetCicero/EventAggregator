@@ -49,6 +49,7 @@ Spezifikation: [docs/specs/2026-10-04-jobs-praktika.md](docs/specs/2026-10-04-jo
 - **Admin** → Reiter „Stellen“ (freigeben/ablehnen/löschen, bearbeiten, Firma zuordnen) und „Firmen“ (Name, Website, Branche, Größe)
 - **Ablauf**: täglich um 3:15 Uhr werden Stellen mit abgelaufener Bewerbungsfrist bzw. ohne Frist nach `JOB_MAX_AGE_DAYS` Tagen (Standard 90) ohne Aktualisierung auf „expired“ gesetzt
 - **Datenschutz** (`/datenschutz`): Kontakt für Auskunft/Löschung consulting@laurenz-polanski.de
+- **Impressum** (`/impressum`): Anbieterangaben nach § 5 DDG, im Footer jeder Seite verlinkt. Die Angaben entsprechen dem Impressum auf laurenz-polanski.de und müssen bei Änderungen an beiden Stellen angepasst werden
 
 Für ein zweites Backend parallel (z. B. mit Testdatenbank) kann der Vite-Proxy per `API_TARGET=http://localhost:4001` umgelenkt werden; die Datenbank lässt sich mit `EVENTS_DB_PATH` wählen.
 
