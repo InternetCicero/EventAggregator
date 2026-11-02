@@ -1,6 +1,6 @@
 # Spec: Materialien (Prompts & Vorlagen zum Download)
 
-- **Status:** Approved
+- **Status:** In Review
 - **Version:** 1
 - **Autor:** Laurenz Polanski (mit Claude)
 - **Erstellt:** 2026-11-02
