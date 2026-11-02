@@ -80,12 +80,12 @@ Die Inhalte erstellt und pflegt Laurenz selbst. Es gibt **kein neues Backend**: 
 
 ## 7. Aufgaben
 
-- [ ] T1: `materials.json` und Verzeichnis `client/public/materialien/` mit leerer Liste anlegen (AC-1, AC-3, AC-6)
-- [ ] T2: `server/test/materials.test.js` schreiben (AC-10)
-- [ ] T3: `Materialien.jsx` mit Liste, Kategorie-Filter, Leerzustand (AC-1, AC-2, AC-6)
-- [ ] T4: Aufklappen, Kopieren mit Fallback, Download-Button (AC-3, AC-4, AC-5)
-- [ ] T5: Route und Nav-Eintrag in `App.jsx`, Styles in `App.css`, mobile Ansicht prüfen (AC-7, AC-8)
-- [ ] T6: README ergänzen, lokal `npm test`, `npm run build`, `npm run lint` (AC-9)
+- [x] T1: `materials.json` und Verzeichnis `client/public/materialien/` mit leerer Liste anlegen (AC-1, AC-3, AC-6)
+- [x] T2: `server/test/materials.test.js` schreiben (AC-10)
+- [x] T3: `Materialien.jsx` mit Liste, Kategorie-Filter, Leerzustand (AC-1, AC-2, AC-6)
+- [x] T4: Aufklappen, Kopieren mit Fallback, Download-Button (AC-3, AC-4, AC-5)
+- [x] T5: Route und Nav-Eintrag in `App.jsx`, Styles in `App.css`, mobile Ansicht prüfen (AC-7, AC-8)
+- [x] T6: README ergänzen, lokal `npm test`, `npm run build`, `npm run lint` (AC-9)
 - [ ] T7: Nach dem Deploy live prüfen: direkter Aufruf von `/materialien` und einer Datei (AC-11)
 
 ## 8. Testplan
