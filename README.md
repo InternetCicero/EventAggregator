@@ -79,3 +79,12 @@ Zeigt eine Seite ihre Events auf mehreren Seiten, bei denen sich nur der Inhalt,
 Der Lauf stoppt früher, wenn der Knopf fehlt oder gesperrt ist oder sich der Inhalt nach dem Klick nicht mehr ändert (letzte Seite). Ein Lauf hat ein Zeitbudget von 2 Minuten fürs Blättern. Bei Seiten, die nach Datum sortiert sind, begrenzt "Max. Seiten" praktisch den Zeitraum.
 
 Beispiel Hackathon Hub: Listen-URL `https://hackathonhub.eu/events`, Item `a.block.group`, Nächste-Seite-Selektor `[aria-label="Go to next page"]`, Max. Seiten `50` liest alle rund 400 Events (34 Seiten, ca. 45 Sekunden).
+
+## Materialien hinzufügen
+
+Der Reiter **Materialien** (`/materialien`) braucht kein Backend. Spezifikation: [docs/specs/2026-11-02-materialien.md](docs/specs/2026-11-02-materialien.md).
+
+1. Datei in `client/public/materialien/` ablegen. Der Dateiname ist zugleich der Download-Name, also einen sprechenden wählen (z. B. `cv-optimierung-prompt.md`). **Prompts** sind `.md`-Dateien (werden auf der Seite angezeigt und lassen sich kopieren), andere Vorlagen z. B. `.pdf` oder `.docx` (nur Download).
+2. In `client/src/data/materials.json` unter `items` einen Eintrag ergänzen: `id` (eindeutig), `title`, `description`, `category` (aus `categories`), `type` (`prompt` oder `datei`), `file`.
+3. `cd server && npm test` prüft, dass jede Datei existiert, IDs eindeutig sind und die Kategorie bekannt ist.
+4. Committen und nach `main` pushen, der Auto-Deploy liefert die Seite aus.

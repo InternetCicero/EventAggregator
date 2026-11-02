@@ -1091,3 +1091,53 @@ button:disabled {
     overflow-x: auto;
   }
 }
+
+/* Materialien */
+.material-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0 20px;
+}
+
+.material-filter .btn-ghost.is-active {
+  background: var(--navy);
+  color: var(--offwhite);
+  border-color: var(--navy);
+}
+
+.material-card p {
+  margin: 0;
+}
+
+.material-prompt summary {
+  cursor: pointer;
+  color: var(--heading);
+  font-weight: 600;
+}
+
+.material-prompt-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: var(--navy-tint);
+  border-radius: 4px;
+  padding: 12px;
+  margin: 10px 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  max-height: 360px;
+  overflow: auto;
+}
+
+.material-copy-hint {
+  margin-left: 10px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.material-download {
+  align-self: flex-start;
+  margin-top: auto;
+  color: var(--accent-hover);
+  font-weight: 600;
+}

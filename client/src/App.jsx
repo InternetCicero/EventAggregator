@@ -7,6 +7,7 @@ import JobDetail from './pages/JobDetail';
 import SubmitJob from './pages/SubmitJob';
 import Datenschutz from './pages/Datenschutz';
 import Impressum from './pages/Impressum';
+import Materialien from './pages/Materialien';
 import './App.css';
 
 export default function App() {
@@ -27,6 +28,7 @@ export default function App() {
               Jobs & Praktika
             </NavLink>
             <NavLink to="/jobs/einreichen">Stelle einreichen</NavLink>
+            <NavLink to="/materialien">Materialien</NavLink>
             <NavLink to="/admin">Admin</NavLink>
           </nav>
         </div>
@@ -39,6 +41,7 @@ export default function App() {
           <Route path="/jobs" element={<JobList />} />
           <Route path="/jobs/einreichen" element={<SubmitJob />} />
           <Route path="/jobs/:id" element={<JobDetail />} />
+          <Route path="/materialien" element={<Materialien />} />
           <Route path="/datenschutz" element={<Datenschutz />} />
           <Route path="/impressum" element={<Impressum />} />
           <Route path="/admin" element={<AdminDashboard />} />
