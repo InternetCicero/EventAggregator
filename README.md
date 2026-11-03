@@ -36,7 +36,8 @@ npm run dev
   - **Formular**: alles manuell eintragen (Titel, Beschreibung, Kategorie, Datum, Ort, Anmeldungslink, Tags)
 - **Admin** (`/admin`, Basic Auth): Events freigeben/ablehnen/löschen, Scraper-Quellen anlegen/bearbeiten/löschen/manuell ausführen
 - **Automatisches Scraping**: pro Quelle werden CSS-Selektoren definiert (Listen-Element, Titel, Datum, Ort, Link, Beschreibung); optional per Checkbox mit Headless-Browser-Rendering (Playwright) für Seiten, die Events per JavaScript nachladen. Ein Cron-Job läuft alle 6 Stunden (`server/src/index.js`) und ruft alle aktiven Quellen ab. Gescrapte Events landen ebenfalls zuerst als "pending".
-- Duplikate werden über die Event-URL erkannt und übersprungen.
+- Duplikate innerhalb einer Quelle werden über die Event-URL (und den Titel) erkannt und übersprungen.
+- **Duplikate über mehrere Quellen** (Spec: [docs/specs/2026-11-03-event-duplikate.md](docs/specs/2026-11-03-event-duplikate.md)): Events gelten als dasselbe Event, wenn sie am selben Kalendertag liegen, die Orte nicht widersprechen und die normalisierten Titel (ohne Reihenfolge, Füllwörter, Jahreszahlen, Akzente) zu mindestens 90 % übereinstimmen. Dann wird kein zweites Event angelegt, sondern die Quelle am vorhandenen Event vermerkt ("Auch bei: …" auf der Eventkarte). Bei 60 bis 90 % wird das Event gespeichert und im Admin als "Mögliches Duplikat von …" markiert (Filter "Nur mögliche Duplikate"). Die Schwellen stehen in `server/src/db/duplicates.js`. Events derselben Quelle werden dabei nicht verglichen, damit mehrere Termine einer Quelle am selben Tag erhalten bleiben. Bereits vorhandene Duplikate werden beim ersten Start nur markiert, nichts wird gelöscht.
 - Die Link-Extraktion blockiert Anfragen an lokale/private Adressen (SSRF-Schutz).
 
 ## Jobs & Praktika

@@ -45,6 +45,18 @@ CREATE TABLE IF NOT EXISTS event_tags (
   PRIMARY KEY (event_id, tag_id)
 );
 
+-- Weitere Quellen, bei denen dasselbe Event ebenfalls gelistet ist
+-- ("Auch bei: ..."), siehe duplicates.js.
+CREATE TABLE IF NOT EXISTS event_listings (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  event_id INTEGER NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+  source TEXT NOT NULL,
+  url TEXT,
+  title TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE (event_id, source)
+);
+
 CREATE TABLE IF NOT EXISTS sources (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
@@ -140,6 +152,11 @@ const eventColumns = db.prepare('PRAGMA table_info(events)').all().map((c) => c.
 if (!eventColumns.includes('format')) {
   db.exec('ALTER TABLE events ADD COLUMN format TEXT');
 }
+// Verweis auf das ähnliche (frühere) Event, wenn dieses als mögliches
+// Duplikat erkannt wurde (siehe duplicates.js).
+if (!eventColumns.includes('duplicate_of')) {
+  db.exec('ALTER TABLE events ADD COLUMN duplicate_of INTEGER');
+}
 
 // Einmalige Migration (PRAGMA user_version als simpler Versionszähler, kein
 // extra Tabelle nötig): die Kategorie-Liste wurde von generischen
@@ -148,7 +165,7 @@ if (!eventColumns.includes('format')) {
 // (online/vor Ort) wird für bestehende Events nachträglich befüllt.
 // Läuft bewusst nur einmal, damit spätere manuelle Korrekturen im
 // Admin-Bereich bei einem Neustart nicht wieder überschrieben werden.
-const CURRENT_SCHEMA_VERSION = 5;
+const CURRENT_SCHEMA_VERSION = 6;
 const { user_version: schemaVersion } = db.prepare('PRAGMA user_version').get();
 
 // Alte Kategorie -> bester Startpunkt im neuen System, falls keine
@@ -284,6 +301,32 @@ if (schemaVersion < 5) {
       const category = classifyCategory(row.title, fallback);
       if (category !== row.category) updateStmt.run(category, row.id);
     }
+  });
+  migrate();
+}
+
+if (schemaVersion < 6) {
+  // Bereits vorhandene Duplikat-Kandidaten einmalig markieren. Das später
+  // angelegte Event verweist auf das früher angelegte, bei mehreren Treffern
+  // auf das ähnlichste. Es wird nichts gelöscht, abgelehnt oder sonst
+  // verändert, und Events derselben Quelle werden nicht verglichen (mehrere
+  // Termine einer Quelle am selben Tag sind legitim, siehe eventsRepo).
+  const { classifyPair } = require('./duplicates');
+
+  const migrate = db.transaction(() => {
+    const rows = db
+      .prepare('SELECT id, title, start_date, location, source FROM events ORDER BY id ASC')
+      .all();
+    const mark = db.prepare('UPDATE events SET duplicate_of = ? WHERE id = ?');
+    rows.forEach((row, i) => {
+      let best = null;
+      for (const earlier of rows.slice(0, i)) {
+        if (earlier.source === row.source && row.source !== 'manual') continue;
+        const hit = classifyPair(row, earlier);
+        if (hit && (!best || hit.similarity > best.similarity)) best = { ...hit, id: earlier.id };
+      }
+      if (best) mark.run(best.id, row.id);
+    });
   });
   migrate();
 }

@@ -50,6 +50,7 @@ const BULK_LABELS = {
 
 function PendingQueue() {
   const [status, setStatus] = useState('pending');
+  const [onlyDuplicates, setOnlyDuplicates] = useState(false);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(() => new Set());
@@ -59,12 +60,12 @@ function PendingQueue() {
     setLoading(true);
     setSelected(new Set());
     api.admin
-      .getEvents(status)
+      .getEvents(status, onlyDuplicates)
       .then(setEvents)
       .finally(() => setLoading(false));
   }
 
-  useEffect(reload, [status]);
+  useEffect(reload, [status, onlyDuplicates]);
 
   const allSelected = events.length > 0 && selected.size === events.length;
   const someSelected = selected.size > 0 && !allSelected;
@@ -102,11 +103,17 @@ function PendingQueue() {
     <section>
       <div className="section-header">
         <h2>Events</h2>
-        <select value={status} onChange={(e) => setStatus(e.target.value)}>
-          <option value="pending">Ausstehend</option>
-          <option value="approved">Freigegeben</option>
-          <option value="rejected">Abgelehnt</option>
-        </select>
+        <div className="section-header-filters">
+          <label className="checkbox-label">
+            <input type="checkbox" checked={onlyDuplicates} onChange={(e) => setOnlyDuplicates(e.target.checked)} />
+            Nur mögliche Duplikate
+          </label>
+          <select value={status} onChange={(e) => setStatus(e.target.value)}>
+            <option value="pending">Ausstehend</option>
+            <option value="approved">Freigegeben</option>
+            <option value="rejected">Abgelehnt</option>
+          </select>
+        </div>
       </div>
 
       {events.length > 0 && (
@@ -165,10 +172,22 @@ function PendingQueue() {
               <td className="admin-table-checkbox">
                 <input type="checkbox" checked={selected.has(e.id)} onChange={() => toggleOne(e.id)} />
               </td>
-              <td>{e.title}</td>
+              <td>
+                {e.title}
+                {e.duplicate_of && (
+                  <div className="duplicate-hint">
+                    Mögliches Duplikat von „{e.duplicate_of_title}“ ({e.duplicate_of_source})
+                  </div>
+                )}
+              </td>
               <td>{e.category}</td>
               <td>{e.start_date}</td>
-              <td>{e.source}</td>
+              <td>
+                {e.source}
+                {e.also_listed?.length > 0 && (
+                  <div className="duplicate-hint">Auch bei: {e.also_listed.map((l) => l.source).join(', ')}</div>
+                )}
+              </td>
               <td className="admin-actions">
                 {status !== 'approved' && (
                   <button onClick={() => api.admin.approve(e.id).then(reload)}>Freigeben</button>

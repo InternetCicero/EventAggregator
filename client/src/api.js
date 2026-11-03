@@ -78,8 +78,10 @@ export const api = {
     logout: () => sessionStorage.removeItem('adminCreds'),
     isLoggedIn: () => !!sessionStorage.getItem('adminCreds'),
 
-    getEvents: (status) =>
-      fetch(`${BASE}/admin/events?status=${status}`, { headers: authHeader() }).then(handle),
+    getEvents: (status, onlyDuplicates = false) =>
+      fetch(`${BASE}/admin/events?status=${status}${onlyDuplicates ? '&duplicates=1' : ''}`, {
+        headers: authHeader(),
+      }).then(handle),
     approve: (id) =>
       fetch(`${BASE}/admin/events/${id}/approve`, { method: 'POST', headers: authHeader() }).then(handle),
     reject: (id) =>

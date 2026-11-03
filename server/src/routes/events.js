@@ -88,7 +88,18 @@ router.post('/', (req, res) => {
     return res.status(400).json({ error: 'Ungültiges Format' });
   }
 
+  // Quellenübergreifende Duplikate: eindeutige abweisen, mögliche markieren.
+  const hit = eventsRepo.findDuplicateCandidate({ title, start_date, location, source: 'manual' });
+  if (hit && hit.level === 'duplicate') {
+    const { id: existingId, title: existingTitle, source: existingSource } = hit.event;
+    return res.status(409).json({
+      error: `Dieses Event ist bereits vorhanden: „${existingTitle}“ (${existingSource === 'manual' ? 'manuell eingereicht' : existingSource}).`,
+      duplicate: { id: existingId, title: existingTitle, source: existingSource },
+    });
+  }
+
   const id = eventsRepo.createEvent({
+    duplicate_of: hit ? hit.event.id : null,
     title,
     description,
     category,

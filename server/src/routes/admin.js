@@ -14,7 +14,8 @@ router.use(adminAuth);
 
 router.get('/events', (req, res) => {
   const status = req.query.status || 'pending';
-  const events = eventsRepo.listEvents({ status });
+  const onlyDuplicates = req.query.duplicates === '1';
+  const events = eventsRepo.listEvents({ status, onlyDuplicates });
   res.json(events);
 });
 
