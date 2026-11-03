@@ -209,6 +209,47 @@ function addListing(eventId, { source, url, title }) {
   return info.changes > 0;
 }
 
+// Entfernt die Duplikat-Markierung (Admin: "Kein Duplikat"). Status und
+// "Auch bei"-Einträge bleiben unverändert. Gibt true zurück, wenn das Event
+// markiert war.
+function clearDuplicate(id) {
+  return db.prepare('UPDATE events SET duplicate_of = NULL WHERE id = ? AND duplicate_of IS NOT NULL').run(id).changes > 0;
+}
+
+// Führt ein als Duplikat markiertes Event in sein Original zusammen: dessen
+// Quelle (samt Link und Titel) und seine eigenen "Auch bei"-Einträge werden am
+// Original vermerkt, das markierte Event wird abgelehnt (nicht gelöscht, damit
+// die Prüfung über URL und Titel es beim nächsten Scraper-Lauf als bekannt
+// erkennt). Alles in einer Transaktion.
+// Liefert { ok: true, into } oder { error: <Code> }; Codes: not_found,
+// not_marked, event_rejected, original_missing, original_rejected,
+// original_not_approved.
+function mergeEvent(id) {
+  const event = db.prepare('SELECT * FROM events WHERE id = ?').get(id);
+  if (!event) return { error: 'not_found' };
+  if (!event.duplicate_of) return { error: 'not_marked' };
+  if (event.status === 'rejected') return { error: 'event_rejected' };
+
+  const original = db.prepare('SELECT id, title, source, status FROM events WHERE id = ?').get(event.duplicate_of);
+  if (!original) {
+    clearDuplicate(id);
+    return { error: 'original_missing' };
+  }
+  if (original.status === 'rejected') return { error: 'original_rejected' };
+  // Sonst würde das Event aus der öffentlichen Liste verschwinden, ohne dass
+  // das Original sichtbar ist.
+  if (event.status === 'approved' && original.status !== 'approved') return { error: 'original_not_approved' };
+
+  const run = db.transaction(() => {
+    addListing(original.id, { source: event.source, url: event.url, title: event.title });
+    const own = db.prepare('SELECT source, url, title FROM event_listings WHERE event_id = ? ORDER BY id ASC').all(id);
+    for (const listing of own) addListing(original.id, listing);
+    db.prepare("UPDATE events SET status = 'rejected', updated_at = datetime('now') WHERE id = ?").run(id);
+  });
+  run();
+  return { ok: true, into: { id: original.id, title: original.title, source: original.source } };
+}
+
 function listAllTags() {
   return db.prepare('SELECT name FROM tags ORDER BY name ASC').all().map((r) => r.name);
 }
@@ -225,6 +266,8 @@ module.exports = {
   findDuplicateByTitleAndStart,
   findDuplicateCandidate,
   addListing,
+  clearDuplicate,
+  mergeEvent,
   listAllTags,
   bulkUpdateStatus,
   bulkDelete,

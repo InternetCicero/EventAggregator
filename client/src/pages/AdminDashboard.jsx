@@ -46,7 +46,12 @@ const BULK_LABELS = {
   approve: 'freigeben',
   reject: 'ablehnen',
   delete: 'löschen',
+  merge: 'zusammenführen',
+  'not-duplicate': 'als Kein Duplikat markieren',
 };
+
+// "manual" ist der interne Quellenname für Einreichungen über das Formular.
+const sourceLabel = (source) => (source === 'manual' ? 'Manuell eingereicht' : source);
 
 function PendingQueue() {
   const [status, setStatus] = useState('pending');
@@ -67,6 +72,7 @@ function PendingQueue() {
 
   useEffect(reload, [status, onlyDuplicates]);
 
+  const hasMarked = events.some((e) => e.duplicate_of && e.status !== 'rejected');
   const allSelected = events.length > 0 && selected.size === events.length;
   const someSelected = selected.size > 0 && !allSelected;
 
@@ -87,15 +93,54 @@ function PendingQueue() {
     if (selected.size === 0) return;
     const label = BULK_LABELS[action];
     if (action === 'delete' && !confirm(`${selected.size} Event(s) wirklich löschen?`)) return;
+    if (
+      action === 'merge' &&
+      !confirm(
+        `${selected.size} Event(s) werden abgelehnt und mit ihrer Quelle als "Auch bei" an ihr jeweiliges Original angehängt. Fortfahren?`,
+      )
+    ) {
+      return;
+    }
 
     setBulkBusy(true);
     try {
-      await api.admin.bulkAction([...selected], action);
+      const result = await api.admin.bulkAction([...selected], action);
+      if (action === 'merge') {
+        const skipped = result.skipped || [];
+        const lines = skipped.map((s) => `- ${s.title || `#${s.id}`}: ${s.reason}`);
+        alert(
+          `${result.affected} zusammengeführt, ${skipped.length} übersprungen.` +
+            (lines.length ? `\n\nÜbersprungen:\n${lines.join('\n')}` : ''),
+        );
+      }
       reload();
     } catch (err) {
       alert(`Sammel-Aktion "${label}" fehlgeschlagen: ${err.message}`);
     } finally {
       setBulkBusy(false);
+    }
+  }
+
+  async function mergeOne(e) {
+    const ok = confirm(
+      `„${e.title}“ (${sourceLabel(e.source)}) wird abgelehnt und als "Auch bei" an „${e.duplicate_of_title}“ (${sourceLabel(e.duplicate_of_source)}) angehängt. Fortfahren?`,
+    );
+    if (!ok) return;
+    try {
+      await api.admin.mergeEvent(e.id);
+      reload();
+    } catch (err) {
+      alert(`Zusammenführen nicht möglich: ${err.message}`);
+      reload();
+    }
+  }
+
+  async function notDuplicate(e) {
+    try {
+      await api.admin.notDuplicate(e.id);
+      reload();
+    } catch (err) {
+      alert(`Fehlgeschlagen: ${err.message}`);
     }
   }
 
@@ -142,6 +187,20 @@ function PendingQueue() {
                 Ausgewählte ablehnen
               </button>
             )}
+            {hasMarked && status !== 'rejected' && (
+              <>
+                <button disabled={selected.size === 0 || bulkBusy} onClick={() => runBulk('merge')}>
+                  Ausgewählte zusammenführen
+                </button>
+                <button
+                  className="btn-ghost"
+                  disabled={selected.size === 0 || bulkBusy}
+                  onClick={() => runBulk('not-duplicate')}
+                >
+                  Kein Duplikat
+                </button>
+              </>
+            )}
             <button
               className="btn-danger"
               disabled={selected.size === 0 || bulkBusy}
@@ -176,7 +235,7 @@ function PendingQueue() {
                 {e.title}
                 {e.duplicate_of && (
                   <div className="duplicate-hint">
-                    Mögliches Duplikat von „{e.duplicate_of_title}“ ({e.duplicate_of_source})
+                    Mögliches Duplikat von „{e.duplicate_of_title}“ ({sourceLabel(e.duplicate_of_source)})
                   </div>
                 )}
               </td>
@@ -185,10 +244,18 @@ function PendingQueue() {
               <td>
                 {e.source}
                 {e.also_listed?.length > 0 && (
-                  <div className="duplicate-hint">Auch bei: {e.also_listed.map((l) => l.source).join(', ')}</div>
+                  <div className="duplicate-hint">Auch bei: {e.also_listed.map((l) => sourceLabel(l.source)).join(', ')}</div>
                 )}
               </td>
               <td className="admin-actions">
+                {e.duplicate_of && status !== 'rejected' && (
+                  <>
+                    <button onClick={() => mergeOne(e)}>Zusammenführen</button>
+                    <button className="btn-ghost" onClick={() => notDuplicate(e)}>
+                      Kein Duplikat
+                    </button>
+                  </>
+                )}
                 {status !== 'approved' && (
                   <button onClick={() => api.admin.approve(e.id).then(reload)}>Freigeben</button>
                 )}
