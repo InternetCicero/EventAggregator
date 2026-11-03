@@ -147,6 +147,9 @@ async function itemSignature(page, itemSelector) {
   }, itemSelector);
 }
 
+// Auf der kleinen VM braucht z. B. der Kalender der Deutschen Bank rund 10 s bis zu den Events.
+const RENDER_WAIT_MS = 30000;
+
 async function fetchRenderedPages(url, { itemSelector, nextSelector, maxPages = 1 } = {}) {
   const { chromium } = require('playwright');
   const browser = await chromium.launch();
@@ -159,7 +162,7 @@ async function fetchRenderedPages(url, { itemSelector, nextSelector, maxPages = 
     // specifically for the event items to show up instead.
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
     if (itemSelector) {
-      await page.waitForSelector(itemSelector, { timeout: 15000 }).catch(() => {});
+      await page.waitForSelector(itemSelector, { timeout: RENDER_WAIT_MS }).catch(() => {});
     } else {
       await page.waitForTimeout(3000);
     }
