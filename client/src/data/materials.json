@@ -1,4 +1,18 @@
 {
-  "categories": ["CV & Anschreiben", "Interview & Case", "Networking", "Sonstiges"],
-  "items": []
+  "categories": [
+    "CV & Anschreiben",
+    "Interview & Case",
+    "Networking",
+    "Sonstiges"
+  ],
+  "items": [
+    {
+      "id": "bewerbungs-pipeline-skill",
+      "title": "Bewerbungs-Pipeline als Claude-Skill (Vorlage)",
+      "description": "Vorlage für einen eigenen Skill: Stellenanalyse, CV-Matching mit Fakten-Guard, Anschreiben, Interview-Training und Excel-Tracker. Platzhalter {{…}} durch eigene Angaben ersetzen; enthält keine persönlichen Daten.",
+      "category": "CV & Anschreiben",
+      "type": "datei",
+      "file": "bewerbungs-pipeline-skill.zip"
+    }
+  ]
 }

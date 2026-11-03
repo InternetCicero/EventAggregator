@@ -88,9 +88,18 @@ Beispiel Hackathon Hub: Listen-URL `https://hackathonhub.eu/events`, Item `a.blo
 
 ## Materialien hinzufügen
 
-Der Reiter **Materialien** (`/materialien`) braucht kein Backend. Spezifikation: [docs/specs/2026-11-02-materialien.md](docs/specs/2026-11-02-materialien.md).
+Der Reiter **Materialien** (`/materialien`) braucht kein Backend. Spezifikationen: [v1](docs/specs/2026-11-02-materialien.md), [Formate](docs/specs/2026-11-02-materialien-formate.md). Die Seite filtert nach **Thema** (`category`) und **Format** (`type`).
 
-1. Datei in `client/public/materialien/` ablegen. Der Dateiname ist zugleich der Download-Name, also einen sprechenden wählen (z. B. `cv-optimierung-prompt.md`). **Prompts** sind `.md`-Dateien (werden auf der Seite angezeigt und lassen sich kopieren), andere Vorlagen z. B. `.pdf` oder `.docx` (nur Download).
-2. In `client/src/data/materials.json` unter `items` einen Eintrag ergänzen: `id` (eindeutig), `title`, `description`, `category` (aus `categories`), `type` (`prompt` oder `datei`), `file`.
-3. `cd server && npm test` prüft, dass jede Datei existiert, IDs eindeutig sind und die Kategorie bekannt ist.
+1. Datei (außer bei Links) in `client/public/materialien/` ablegen. Der Dateiname ist zugleich der Download-Name, also einen sprechenden wählen (z. B. `cv-optimierung-prompt.md`).
+2. In `client/src/data/materials.json` unter `items` einen Eintrag ergänzen. Immer nötig: `id` (eindeutig), `title`, `description`, `category` (aus `categories`), `type`. Je Format zusätzlich:
+
+| `type` | Zusätzlich | Datei |
+|---|---|---|
+| `prompt` | `file` | `.md`, wird aufklappbar angezeigt, mit Kopieren-Button |
+| `text` | `file` | `.md`, wird formatiert angezeigt (Überschriften, Listen, Fettdruck, Links). Rohes HTML und Bilder im Markdown werden nicht ausgeführt bzw. geladen. |
+| `datei` | `file` | `pdf`, `docx`, `doc`, `xlsx`, `pptx`, `txt`, `csv`, `zip` |
+| `bild` | `file`, `alt` (Alt-Text) | `png`, `jpg`, `jpeg`, `webp`, höchstens 800 KB |
+| `link` | `url` (muss mit `https://` beginnen) | keine Datei |
+
+3. `cd server && npm test` prüft Pflichtfelder, Dateiendungen, Bildgröße, Links und dass jede Datei existiert; `cd client && npm test` prüft die Markdown-Aufbereitung.
 4. Committen und nach `main` pushen, der Auto-Deploy liefert die Seite aus.
