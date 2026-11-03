@@ -1,6 +1,6 @@
 # Spec: Duplikate im Admin zusammenführen
 
-- **Status:** Approved
+- **Status:** In Review
 - **Version:** 1
 - **Autor:** Laurenz Polanski (mit Claude)
 - **Erstellt:** 2026-11-03
@@ -94,10 +94,10 @@ Bei Sammelaktionen werden nicht erlaubte Events übersprungen und mit Grund geme
 
 ## 9. Aufgaben
 
-- [ ] T1: `mergeEvent` und `clearDuplicate` im Repository mit Tests für alle Fälle aus Abschnitt 5 und die Transaktion (AC-1, AC-3 bis AC-8)
-- [ ] T2: Admin-Endpunkte und Sammelaktionen mit Tests, auch Zugriffsschutz und Scraper-Wiederholung (AC-9, AC-10, AC-13, AC-14)
-- [ ] T3: Admin-Oberfläche: Zeilenknöpfe, Sammelaktionen, Bestätigungsdialog, Zusammenfassung (AC-9, AC-11, AC-12)
-- [ ] T4: README, manuelle Prüfung der Oberfläche mit lokaler Demo-Datenbank (Eventkarte zeigt "Auch bei" nach dem Zusammenführen) (AC-2)
+- [x] T1: `mergeEvent` und `clearDuplicate` im Repository mit Tests für alle Fälle aus Abschnitt 5 und die Transaktion (AC-1, AC-3 bis AC-8)
+- [x] T2: Admin-Endpunkte und Sammelaktionen mit Tests, auch Zugriffsschutz und Scraper-Wiederholung (AC-9, AC-10, AC-13, AC-14)
+- [x] T3: Admin-Oberfläche: Zeilenknöpfe, Sammelaktionen, Bestätigungsdialog, Zusammenfassung (AC-9, AC-11, AC-12)
+- [x] T4: README, manuelle Prüfung der Oberfläche mit lokaler Demo-Datenbank (Eventkarte zeigt "Auch bei" nach dem Zusammenführen) (AC-2)
 - [ ] T5: Nach dem Deploy: Test an einem echten Fall mit dem Admin (Sie führen aus, ich prüfe danach die öffentliche Seite)
 
 ## 10. Testplan

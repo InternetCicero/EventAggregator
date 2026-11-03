@@ -59,8 +59,10 @@ export default function EventCard({ event }) {
               {i > 0 && ', '}
               {l.url ? (
                 <a href={l.url} target="_blank" rel="noopener noreferrer">
-                  {l.source}
+                  {l.source === 'manual' ? 'Manuell eingereicht' : l.source}
                 </a>
+              ) : l.source === 'manual' ? (
+                'Manuell eingereicht'
               ) : (
                 l.source
               )}

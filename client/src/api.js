@@ -88,6 +88,10 @@ export const api = {
       fetch(`${BASE}/admin/events/${id}/reject`, { method: 'POST', headers: authHeader() }).then(handle),
     deleteEvent: (id) =>
       fetch(`${BASE}/admin/events/${id}`, { method: 'DELETE', headers: authHeader() }).then(handle),
+    mergeEvent: (id) =>
+      fetch(`${BASE}/admin/events/${id}/merge`, { method: 'POST', headers: authHeader() }).then(handle),
+    notDuplicate: (id) =>
+      fetch(`${BASE}/admin/events/${id}/not-duplicate`, { method: 'POST', headers: authHeader() }).then(handle),
     bulkAction: (ids, action) =>
       fetch(`${BASE}/admin/events/bulk`, {
         method: 'POST',

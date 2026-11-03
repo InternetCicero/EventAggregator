@@ -32,6 +32,38 @@ const BULK_ACTIONS = {
   delete: (ids) => eventsRepo.bulkDelete(ids),
 };
 
+const MERGE_ERRORS = {
+  not_found: 'Event nicht gefunden',
+  not_marked: 'Nicht als Duplikat markiert',
+  event_rejected: 'Das Event ist bereits abgelehnt',
+  original_missing: 'Das Original existiert nicht mehr (Markierung wurde entfernt)',
+  original_rejected: 'Das Original ist abgelehnt',
+  original_not_approved: 'Original zuerst freigeben, sonst verschwindet das Event aus der öffentlichen Liste',
+};
+
+// Sammelaktionen mit Einzelergebnis: erlaubte Events werden bearbeitet, die
+// übrigen mit Grund gemeldet.
+function bulkMerge(ids) {
+  const skipped = [];
+  let affected = 0;
+  for (const id of ids) {
+    const result = eventsRepo.mergeEvent(id);
+    if (result.ok) {
+      affected++;
+    } else {
+      const event = eventsRepo.getEvent(id);
+      skipped.push({ id, title: event ? event.title : null, reason: MERGE_ERRORS[result.error] || result.error });
+    }
+  }
+  return { affected, skipped };
+}
+
+function bulkNotDuplicate(ids) {
+  let affected = 0;
+  for (const id of ids) if (eventsRepo.clearDuplicate(id)) affected++;
+  return { affected, skipped: [] };
+}
+
 router.post('/events/bulk', (req, res) => {
   const { ids, action } = req.body;
 
@@ -42,13 +74,33 @@ router.post('/events/bulk', (req, res) => {
   if (numericIds.length !== ids.length) {
     return res.status(400).json({ error: 'ids enthält ungültige Werte' });
   }
+  if (action === 'merge' || action === 'not-duplicate') {
+    const result = action === 'merge' ? bulkMerge(numericIds) : bulkNotDuplicate(numericIds);
+    return res.json({ ok: true, ...result });
+  }
   const handler = BULK_ACTIONS[action];
   if (!handler) {
-    return res.status(400).json({ error: `action muss eine von ${Object.keys(BULK_ACTIONS).join(', ')} sein` });
+    return res.status(400).json({
+      error: `action muss eine von ${[...Object.keys(BULK_ACTIONS), 'merge', 'not-duplicate'].join(', ')} sein`,
+    });
   }
 
   const affected = handler(numericIds);
   res.json({ ok: true, affected });
+});
+
+router.post('/events/:id/merge', (req, res) => {
+  const result = eventsRepo.mergeEvent(Number(req.params.id));
+  if (result.ok) return res.json({ ok: true, into: result.into });
+  const status = result.error === 'not_found' ? 404 : 409;
+  res.status(status).json({ error: MERGE_ERRORS[result.error] || result.error, code: result.error });
+});
+
+router.post('/events/:id/not-duplicate', (req, res) => {
+  const id = Number(req.params.id);
+  if (!eventsRepo.getEvent(id)) return res.status(404).json({ error: MERGE_ERRORS.not_found, code: 'not_found' });
+  eventsRepo.clearDuplicate(id);
+  res.json({ ok: true });
 });
 
 router.post('/events/:id/approve', (req, res) => {
