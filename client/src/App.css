@@ -1395,3 +1395,9 @@ button:disabled {
   line-height: 1.5;
   color: var(--text-muted);
 }
+
+/* Lange Listen-URLs (z. B. mit Filter-Parametern) dürfen die Tabelle nicht sprengen */
+.admin-url {
+  max-width: 22rem;
+  overflow-wrap: anywhere;
+}

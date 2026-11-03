@@ -565,7 +565,7 @@ function SourceManager() {
             <tr key={s.id}>
               <td>{s.name}</td>
               <td>{s.category}</td>
-              <td>
+              <td className="admin-url">
                 <a href={s.list_url} target="_blank" rel="noopener noreferrer">
                   {s.list_url}
                 </a>
