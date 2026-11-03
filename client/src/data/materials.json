@@ -96,6 +96,29 @@
       "category": "Sonstiges",
       "type": "datei",
       "file": "qualitative-inhaltsanalyse-kompakt-skill.zip"
+    },
+    {
+      "id": "quantitative-analyse-kompakt-skill",
+      "title": "Skill: Quantitative Datenanalyse (kompakt)",
+      "description": "Schlanker Claude-Skill für Statistik: Voraussetzungen prüfen, Test wählen, Ergebnisse im APA-Stil berichten (CSV, SQL).",
+      "outcome": [
+        "Skalenniveau und Verteilung werden vor jedem Test geprüft",
+        "Testauswahl nach festen Regeln für metrische, ordinale und nominale Daten",
+        "Ergebnisse im APA-Stil mit p-Wert und Effektstärke"
+      ],
+      "useWhen": [
+        "Du wertest Umfragedaten oder Messreihen für eine Abschlussarbeit aus",
+        "Du willst nachvollziehbar dokumentieren, warum du welchen Test gewählt hast"
+      ],
+      "steps": [
+        "ZIP entpacken",
+        "Ordner als Skill in Claude hochladen",
+        "CSV oder Tabelle einfügen und die Fragestellung nennen",
+        "Voraussetzungsprüfung und Ergebnisse stichprobenartig nachrechnen"
+      ],
+      "category": "Sonstiges",
+      "type": "datei",
+      "file": "quantitative-analyse-kompakt-skill.zip"
     }
   ]
 }
