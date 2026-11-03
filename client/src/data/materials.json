@@ -8,8 +8,23 @@
   "items": [
     {
       "id": "bewerbungs-pipeline-skill",
-      "title": "Bewerbungs-Pipeline als Claude-Skill (Vorlage)",
-      "description": "Vorlage für einen eigenen Skill: Stellenanalyse, CV-Matching mit Fakten-Guard, Anschreiben, Interview-Training und Excel-Tracker. Platzhalter {{…}} durch eigene Angaben ersetzen; enthält keine persönlichen Daten.",
+      "title": "Skill für Bewerbungen",
+      "description": "Eigener Claude-Skill, der Stellen analysiert, deinen CV passend macht und dich aufs Interview vorbereitet.",
+      "outcome": [
+        "Stellenanalyse mit Must-haves, Keywords und Red Flags",
+        "CV-Matching, das nur mit belegbaren Fakten aus deinem Profil arbeitet",
+        "Anschreiben-Entwurf und Interview-Training zur jeweiligen Stelle"
+      ],
+      "useWhen": [
+        "Du bewirbst dich auf mehrere Stellen und willst deinen CV jeweils schnell anpassen",
+        "Du willst vor einem Gespräch gezielt Fragen zur Stelle üben"
+      ],
+      "steps": [
+        "ZIP entpacken",
+        "Platzhalter {{…}} in SKILL.md durch deine Angaben ersetzen",
+        "Ordner als Skill in Claude hochladen",
+        "Stellenlink einfügen und starten"
+      ],
       "category": "CV & Anschreiben",
       "type": "datei",
       "file": "bewerbungs-pipeline-skill.zip"

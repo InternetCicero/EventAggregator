@@ -18,6 +18,23 @@ const FILE_EXT = {
   bild: ['png', 'jpg', 'jpeg', 'webp'],
 };
 const MAX_IMAGE_BYTES = 800 * 1024;
+const MAX_DESCRIPTION = 140;
+const MAX_POINT = 160;
+const ID_PATTERN = /^[a-z0-9-]+$/;
+const INFO = { outcome: ['Nutzen'], useWhen: ['Einsatz'] };
+
+// outcome/useWhen/steps: Liste aus 1..max nicht leeren Kurzsätzen
+function checkPoints(item, field, max, errors, where) {
+  const list = item[field];
+  if (!Array.isArray(list) || list.length < 1 || list.length > max) {
+    errors.push(`${where}: "${field}" muss eine Liste mit 1 bis ${max} Einträgen sein`);
+    return;
+  }
+  for (const point of list) {
+    if (typeof point !== 'string' || point.trim() === '') errors.push(`${where}: "${field}" enthält einen leeren Eintrag`);
+    else if (point.length > MAX_POINT) errors.push(`${where}: Eintrag in "${field}" ist länger als ${MAX_POINT} Zeichen`);
+  }
+}
 
 function validateMaterials(data, filesDir) {
   const errors = [];
@@ -31,6 +48,13 @@ function validateMaterials(data, filesDir) {
     for (const field of BASE_FIELDS) {
       if (missing(item, field)) errors.push(`${where}: Pflichtfeld "${field}" fehlt`);
     }
+    if (item.id && !ID_PATTERN.test(item.id)) errors.push(`${where}: "id" darf nur a-z, 0-9 und - enthalten`);
+    if (typeof item.description === 'string' && item.description.length > MAX_DESCRIPTION) {
+      errors.push(`${where}: "description" ist länger als ${MAX_DESCRIPTION} Zeichen`);
+    }
+    checkPoints(item, 'outcome', 4, errors, where);
+    checkPoints(item, 'useWhen', 4, errors, where);
+    if (item.steps !== undefined) checkPoints(item, 'steps', 8, errors, where);
     if (seen.has(item.id)) errors.push(`${where}: doppelte ID`);
     seen.add(item.id);
     if (item.category && !categories.includes(item.category)) {
@@ -93,7 +117,7 @@ test('AC-10: Validator lässt eine vorhandene Datei durch und blockt Pfade auße
   try {
     fs.writeFileSync(path.join(tmp, 'ok.md'), 'Text');
     const base = { title: 'T', description: 'D', category: 'Networking', type: 'prompt' };
-    const good = { categories: ['Networking'], items: [{ ...base, id: 'a', file: 'ok.md' }] };
+    const good = { categories: ['Networking'], items: [{ ...base, ...INFO, id: 'a', file: 'ok.md' }] };
     assert.deepEqual(validateMaterials(good, tmp), []);
     const bad = { categories: ['Networking'], items: [{ ...base, id: 'a', file: '../ok.md' }] };
     assert.match(validateMaterials(bad, tmp).join('\n'), /außerhalb/);
@@ -110,7 +134,7 @@ test('AC-14: Validator prüft die Regeln der neuen Formate', () => {
     fs.writeFileSync(path.join(tmp, 'text.md'), 'x');
     fs.writeFileSync(path.join(tmp, 'tool.exe'), 'x');
     fs.writeFileSync(path.join(tmp, 'logo.svg'), 'x');
-    const base = { description: 'D', category: 'Networking' };
+    const base = { description: 'D', category: 'Networking', ...INFO };
     const good = {
       categories: ['Networking'],
       items: [
@@ -136,4 +160,21 @@ test('AC-14: Validator prüft die Regeln der neuen Formate', () => {
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });
   }
+});
+
+test('AC-13: Validator prüft Nutzen, Einsatz, Schritte, Beschreibungslänge und ID-Format', () => {
+  const base = { id: 'a', title: 'T', description: 'D', category: 'Networking', type: 'link', url: 'https://example.com', ...INFO };
+  const run = (item) => validateMaterials({ categories: ['Networking'], items: [{ ...base, ...item }] }, FILES_DIR).join('\n');
+  assert.equal(run({}), '');
+  assert.equal(run({ steps: ['Eins', 'Zwei'] }), '');
+  assert.match(run({ outcome: undefined }), /"outcome" muss eine Liste/);
+  assert.match(run({ useWhen: [] }), /"useWhen" muss eine Liste mit 1 bis 4/);
+  assert.match(run({ outcome: ['1', '2', '3', '4', '5'] }), /1 bis 4/);
+  assert.match(run({ outcome: ['  '] }), /leeren Eintrag/);
+  assert.match(run({ useWhen: ['x'.repeat(161)] }), /länger als 160/);
+  assert.match(run({ steps: [] }), /"steps" muss eine Liste mit 1 bis 8/);
+  assert.match(run({ steps: Array(9).fill('x') }), /1 bis 8/);
+  assert.match(run({ description: 'x'.repeat(141) }), /länger als 140/);
+  assert.match(run({ id: 'Mit Leerzeichen' }), /nur a-z, 0-9 und -/);
+  assert.match(run({ id: 'datei.zip' }), /nur a-z, 0-9 und -/);
 });

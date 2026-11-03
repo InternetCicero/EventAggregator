@@ -138,12 +138,12 @@ Beispiel (Entwurf für den vorhandenen Skill):
 
 ## 10. Aufgaben
 
-- [ ] T1: Datenmodell und Validator erweitern, Tests schreiben (AC-13)
-- [ ] T2: Detailseite mit Kopf, Info-Blöcken, Zurück-Link, "nicht gefunden", Seitentitel (AC-3, AC-4, AC-10, AC-12)
-- [ ] T3: Asset-Bereich je Format (AC-5, AC-6, AC-7, AC-8, AC-9)
-- [ ] T4: Übersicht mit klickbaren Karten und Filtern in der Adresse (AC-1, AC-2, AC-11)
-- [ ] T5: Route, Styles, mobile Ansicht (AC-15, AC-16)
-- [ ] T6: Eintrag des Skills mit neuen Feldern füllen, README ergänzen
+- [x] T1: Datenmodell und Validator erweitern, Tests schreiben (AC-13)
+- [x] T2: Detailseite mit Kopf, Info-Blöcken, Zurück-Link, "nicht gefunden", Seitentitel (AC-3, AC-4, AC-10, AC-12)
+- [x] T3: Asset-Bereich je Format (AC-5, AC-6, AC-7, AC-8, AC-9)
+- [x] T4: Übersicht mit klickbaren Karten und Filtern in der Adresse (AC-1, AC-2, AC-11)
+- [x] T5: Route, Styles, mobile Ansicht (AC-15, AC-16)
+- [x] T6: Eintrag des Skills mit neuen Feldern füllen, README ergänzen
 - [ ] T7: Nach dem Deploy live prüfen: Direktaufruf der Detailseite, Zurück-Verhalten, Dateien (AC-14)
 
 ## 11. Testplan
