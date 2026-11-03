@@ -46,7 +46,7 @@ export default function Datenschutz() {
       <h2>Hosting</h2>
       <p>
         Die Website wird auf einem Server von Google Cloud betrieben. Beim Aufruf werden technisch notwendige Daten
-        (z. B. IP-Adresse) in Server-Logs verarbeitet. Schriftarten werden von Google Fonts geladen.
+        (z. B. IP-Adresse) in Server-Logs verarbeitet. Die Schriftart wird von diesem Server selbst ausgeliefert, es werden keine Schriften von Drittanbietern geladen.
       </p>
     </article>
   );
