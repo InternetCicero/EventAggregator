@@ -51,6 +51,23 @@ export default function EventCard({ event }) {
         </div>
       )}
       <div className="event-card-source">Quelle: {event.source === 'manual' ? 'Manuell eingereicht' : event.source}</div>
+      {event.also_listed?.length > 0 && (
+        <div className="event-card-also">
+          Auch bei:{' '}
+          {event.also_listed.map((l, i) => (
+            <span key={l.source}>
+              {i > 0 && ', '}
+              {l.url ? (
+                <a href={l.url} target="_blank" rel="noopener noreferrer">
+                  {l.source}
+                </a>
+              ) : (
+                l.source
+              )}
+            </span>
+          ))}
+        </div>
+      )}
     </article>
   );
 }

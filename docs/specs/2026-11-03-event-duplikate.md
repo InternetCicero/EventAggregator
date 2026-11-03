@@ -1,6 +1,6 @@
 # Spec: Duplikaterkennung für Events über mehrere Quellen
 
-- **Status:** Approved
+- **Status:** In Review
 - **Version:** 2
 - **Autor:** Laurenz Polanski (mit Claude)
 - **Erstellt:** 2026-11-03
@@ -39,7 +39,7 @@ Beispiel: "McKinsey | Case Workshop 2026" und "Case Workshop mit McKinsey" ergeb
 | 0,6 bis unter 0,9 | Mögliches Duplikat | wird gespeichert, als "ausstehend" mit Verweis auf das ähnliche Event markiert |
 | < 0,6 | kein Duplikat | wird normal gespeichert |
 
-Verglichen wird mit Events **jedes Status** (ausstehend, freigegeben, abgelehnt). Ein bereits abgelehntes Event kommt dadurch nicht über eine zweite Quelle zurück.
+Verglichen wird mit Events **jedes Status** (ausstehend, freigegeben, abgelehnt) und **jeder anderen Quelle**. Events derselben Quelle werden nicht miteinander verglichen, damit mehrere Termine einer Quelle am selben Tag erhalten bleiben (für wiederholt gelesene Events gilt weiter die URL-/Titelprüfung der Quelle). Ausnahme: manuell eingereichte Events werden auch untereinander verglichen, weil sie von verschiedenen Personen stammen. Ein bereits abgelehntes Event kommt dadurch nicht über eine zweite Quelle zurück.
 
 ## 3. Scope
 
@@ -116,14 +116,14 @@ Verglichen wird mit Events **jedes Status** (ausstehend, freigegeben, abgelehnt)
 
 ## 8. Aufgaben
 
-- [ ] T1: `duplicates.js` mit Normalisierung, Ähnlichkeit, Ortsprüfung und Einstufung; Unit-Tests (AC-1 bis AC-6)
-- [ ] T2: Migration v6 mit Spalte `duplicate_of` und einmaliger Markierung; Migrationstest (AC-10)
-- [ ] T3: Einbau im Scraper inkl. Status und Zählern; Tests (AC-1, AC-2, AC-11, AC-12)
-- [ ] T3a: Tabelle `event_listings`, `addListing`, `also_listed` in den API-Antworten; Tests (AC-14, AC-15, AC-17, AC-18)
-- [ ] T4: Einbau im Formular-Endpunkt; Tests (AC-7, AC-8)
-- [ ] T5: Admin-API und Admin-Oberfläche mit Hinweis und Filter (AC-9, AC-13)
-- [ ] T5a: Zeile "Auch bei" auf der Eventkarte und im Admin (AC-16)
-- [ ] T6: README, manuelle Prüfung der Oberfläche, Probelauf mit echten Quellen gegen eine lokale Test-DB (Realitätscheck, keine Änderung an Live-Daten)
+- [x] T1: `duplicates.js` mit Normalisierung, Ähnlichkeit, Ortsprüfung und Einstufung; Unit-Tests (AC-1 bis AC-6)
+- [x] T2: Migration v6 mit Spalte `duplicate_of` und einmaliger Markierung; Migrationstest (AC-10)
+- [x] T3: Einbau im Scraper inkl. Status und Zählern; Tests (AC-1, AC-2, AC-11, AC-12)
+- [x] T3a: Tabelle `event_listings`, `addListing`, `also_listed` in den API-Antworten; Tests (AC-14, AC-15, AC-17, AC-18)
+- [x] T4: Einbau im Formular-Endpunkt; Tests (AC-7, AC-8)
+- [x] T5: Admin-API und Admin-Oberfläche mit Hinweis und Filter (AC-9, AC-13)
+- [x] T5a: Zeile "Auch bei" auf der Eventkarte und im Admin (AC-16)
+- [x] T6: README, manuelle Prüfung der Oberfläche, Probelauf mit echten Quellen gegen eine lokale Test-DB (Realitätscheck, keine Änderung an Live-Daten)
 - [ ] T7: Nach dem Deploy: Migration auf der Live-Datenbank prüfen (Zahl der markierten Events nennen, nichts gelöscht) (AC-10)
 
 ## 9. Testplan
@@ -147,4 +147,5 @@ Verglichen wird mit Events **jedes Status** (ausstehend, freigegeben, abgelehnt)
 ## 11. Änderungsprotokoll
 
 - v1 (2026-11-03): Erster Entwurf
+- v2.1 (2026-11-03, Klarstellung bei der Umsetzung): Events derselben Quelle werden nicht verglichen (Ausnahme manuelle Einreichungen), siehe Abschnitt 2. Begründung: mehrere Termine einer Quelle am selben Tag (z. B. zwei Infoabende) sollen nicht als Duplikat gelten; entspricht AC-12 und AC-15.
 - v2 (2026-11-03, freigegeben): Entscheidungen aus dem Review eingearbeitet. Neu: Eintrag "Auch bei" statt Verlust des Links bei verworfenen Duplikaten (Tabelle `event_listings`, AC-14 bis AC-18, Anzeige auf der Eventkarte), Non-Goals angepasst.

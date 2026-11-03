@@ -254,6 +254,8 @@ async function runSource(source, deps = {}) {
   let inserted = 0;
   let skipped = 0;
   let failed = 0;
+  let crossSource = 0;
+  let flagged = 0;
 
   let total = 0;
 
@@ -274,7 +276,8 @@ async function runSource(source, deps = {}) {
           const $date = $el.find(source.date_selector).first();
           rawDate = $date.attr('datetime') || $date.attr('content') || cleanText($date);
         }
-        const startDate = parseDateGuess(rawDate) || new Date().toISOString().slice(0, 16);
+        const parsedDate = parseDateGuess(rawDate);
+        const startDate = parsedDate || new Date().toISOString().slice(0, 16);
 
         let location = source.location_selector
           ? cleanText($el.find(source.location_selector).first())
@@ -308,6 +311,23 @@ async function runSource(source, deps = {}) {
           link = source.list_url;
         }
 
+        // Quellenübergreifende Duplikate (Titel + Tag, siehe db/duplicates.js).
+        // Ohne erkennbares Datum (Ersatzwert "jetzt") wird nicht verglichen.
+        let duplicateOf = null;
+        if (parsedDate) {
+          const hit = eventsRepo.findDuplicateCandidate({ title, start_date: startDate, location, source: source.name });
+          if (hit && hit.level === 'duplicate') {
+            skipped++;
+            crossSource++;
+            eventsRepo.addListing(hit.event.id, { source: source.name, url: link, title });
+            continue;
+          }
+          if (hit) {
+            duplicateOf = hit.event.id;
+            flagged++;
+          }
+        }
+
         const { category, tags } = classifyEvent(title, source.category, defaultTags);
         const format = inferFormat(location);
 
@@ -322,6 +342,7 @@ async function runSource(source, deps = {}) {
           source: source.name,
           status: 'pending',
           tags,
+          duplicate_of: duplicateOf,
         });
         inserted++;
       } catch (err) {
@@ -331,8 +352,13 @@ async function runSource(source, deps = {}) {
   }
 
   const pageNote = pages.length > 1 ? `, ${pages.length} Seiten` : '';
-  sourcesRepo.markRun(source.id, `ok: ${inserted} neu, ${skipped} Duplikate, ${failed} Fehler${pageNote}`);
-  return { inserted, skipped, failed, total, pages: pages.length };
+  const crossNote = crossSource > 0 ? ` (${crossSource} quellenübergreifend)` : '';
+  const flaggedNote = flagged > 0 ? `, ${flagged} markiert` : '';
+  sourcesRepo.markRun(
+    source.id,
+    `ok: ${inserted} neu, ${skipped} Duplikate${crossNote}${flaggedNote}, ${failed} Fehler${pageNote}`,
+  );
+  return { inserted, skipped, failed, total, pages: pages.length, crossSource, flagged };
 }
 
 async function runAllActiveSources() {

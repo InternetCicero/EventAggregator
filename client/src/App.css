@@ -221,6 +221,15 @@
   border-top: 1px solid var(--border);
 }
 
+.event-card-also {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.event-card-also a {
+  color: var(--accent-hover);
+}
+
 .hint {
   color: var(--text-muted);
   font-style: italic;
@@ -1330,4 +1339,18 @@ button:disabled {
   .material-info {
     grid-template-columns: 1fr;
   }
+}
+
+/* Admin: Duplikat-Hinweise */
+.duplicate-hint {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: #8a5a00;
+}
+
+.section-header-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
 }
