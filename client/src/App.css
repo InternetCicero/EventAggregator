@@ -1354,3 +1354,10 @@ button:disabled {
   align-items: center;
   gap: 16px;
 }
+
+.material-license {
+  margin-top: 2.5rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
