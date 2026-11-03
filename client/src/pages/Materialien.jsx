@@ -1,5 +1,5 @@
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
-import { FORMATS, FORMAT_LABEL, MATERIALS as data } from '../lib/materials';
+import { FORMATS, FORMAT_LABEL, LICENSE_NOTICE, MATERIALS as data } from '../lib/materials';
 
 function MaterialCard({ m, from }) {
   return (
@@ -85,6 +85,8 @@ export default function Materialien() {
           ))}
         </div>
       )}
+
+      <p className="material-license">{LICENSE_NOTICE} Materialien mit eigenem Lizenzhinweis sind ausgenommen.</p>
     </section>
   );
 }

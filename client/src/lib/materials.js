@@ -26,3 +26,8 @@ export function hostOf(url) {
     return url;
   }
 }
+
+// Lizenzhinweis für eigene Materialien; Materialien mit eigener Lizenz stehen in OTHER_LICENSE.
+export const LICENSE_NOTICE =
+  'Eigene Materialien von Laurenz Polanski, Lizenz CC BY-NC 4.0: kostenlos nutzbar, auch im Beruf, anpassbar und nicht-kommerziell weitergebbar, mit Namensnennung. Verkauf oder kommerzielle Weitergabe ist nicht erlaubt.';
+export const OTHER_LICENSE = ['quantitative-analysis-skill'];
