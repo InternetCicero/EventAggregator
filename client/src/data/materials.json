@@ -28,6 +28,29 @@
       "category": "CV & Anschreiben",
       "type": "datei",
       "file": "bewerbungs-pipeline-skill.zip"
+    },
+    {
+      "id": "cv-vorlage-canva",
+      "title": "CV-Vorlage in Canva",
+      "description": "Einseitige CV-Vorlage mit Platzhaltern: Aufbau und Bullet-Struktur stehen, du trägst nur noch deine Inhalte ein.",
+      "outcome": [
+        "Klarer einseitiger Aufbau: Berufserfahrung, Ausbildung, Engagement, Skills",
+        "Platzhalter für Bullets nach dem Muster Verb + Ergebnis + Zahl",
+        "Layout steht, du kümmerst dich nur um den Inhalt"
+      ],
+      "useWhen": [
+        "Du startest deinen ersten CV oder willst deinen bisherigen neu aufsetzen",
+        "Du bewirbst dich in Beratung, Finance oder Tech und willst ein schlichtes Ein-Spalten-Layout ohne Grafiken"
+      ],
+      "steps": [
+        "Link öffnen und in Canva eine eigene Kopie der Vorlage anlegen",
+        "Platzhalter in eckigen Klammern durch deine Angaben ersetzen",
+        "Nicht benötigte Stationen löschen und Bullets auf höchstens zwei Zeilen kürzen",
+        "Als PDF exportieren"
+      ],
+      "category": "CV & Anschreiben",
+      "type": "link",
+      "url": "https://canva.link/53kiljvv86pkft4"
     }
   ]
 }
