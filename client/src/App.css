@@ -1389,3 +1389,9 @@ button:disabled {
   background: var(--accent, #7a1f2b);
   border-radius: 2px 2px 0 0;
 }
+.material-license {
+  margin-top: 2.5rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}

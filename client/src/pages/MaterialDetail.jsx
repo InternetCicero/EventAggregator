@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
-import { FORMAT_LABEL, fileUrl, findMaterial, hostOf } from '../lib/materials';
+import { FORMAT_LABEL, LICENSE_NOTICE, OTHER_LICENSE, fileUrl, findMaterial, hostOf } from '../lib/materials';
 
 // Lädt eine Textdatei beim Anzeigen der Seite. nginx liefert bei unbekannten
 // Pfaden die Startseite (HTML) mit 200 zurück, das zählt als Fehler.
@@ -230,6 +230,12 @@ export default function MaterialDetail() {
         <h2>Das Material</h2>
         <Asset material={material} />
       </section>
+
+      <p className="material-license">
+        {OTHER_LICENSE.includes(material.id)
+          ? 'Dieses Material steht unter eigener Lizenz, siehe Beschreibung und Lizenzdatei im Download.'
+          : LICENSE_NOTICE}
+      </p>
     </article>
   );
 }
