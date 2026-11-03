@@ -56,7 +56,7 @@ function parseDateGuess(text, now = new Date()) {
   }
 
   // "24 Aug 2026"
-  const enNamed = cleaned.match(/([A-Za-z]+)\s+(\d{1,2}),?\s+(\d{4})/);
+  const enNamed = cleaned.match(/([A-Za-zÄäÖöÜü]+)\.?\s+(\d{1,2}),?\s+(\d{4})/);
   if (enNamed) {
     const [, monthName, d, y] = enNamed;
     const month = MONTHS[monthName.toLowerCase()];

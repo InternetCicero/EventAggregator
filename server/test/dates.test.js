@@ -103,3 +103,8 @@ test('cleanText: versteckte Hilfstexte (sr-only, aria-hidden) bleiben ausgeschlo
   const html = '<div class="d"><span class="sr-only">Datum</span><span>Okt</span><span>09</span><i aria-hidden="true">x</i></div>';
   assert.equal(textOf(html, '.d'), 'Okt 09');
 });
+
+test('englische Monatsangabe mit Abkürzungspunkt: "Okt. 29, 2026 - Jan. 14, 2027" (Simon-Kucher)', () => {
+  assert.equal(parseDateGuess('Event | Okt. 29, 2026 - Jan. 14, 2027 | Europe'), '2026-10-29T00:00');
+  assert.equal(parseDateGuess('Event | Nov. 4, 2026 | Europe'), '2026-11-04T00:00');
+});
