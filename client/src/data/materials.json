@@ -119,6 +119,29 @@
       "category": "Sonstiges",
       "type": "datei",
       "file": "quantitative-analyse-kompakt-skill.zip"
+    },
+    {
+      "id": "quantitative-analysis-skill",
+      "title": "Skill: Statistische Tests und Effektstärken",
+      "description": "Skill für Testauswahl, Effektstärken und Power-Analyse. Quelle: poemswe/co-researcher auf GitHub (MIT-Lizenz), unverändert.",
+      "outcome": [
+        "Passender Test je Fragestellung und Datentyp, mit Begründung",
+        "Effektstärken und Konfidenzintervalle statt nur p-Werten",
+        "Prüfung der Voraussetzungen und Hinweise auf Grenzen der Aussagekraft"
+      ],
+      "useWhen": [
+        "Du musst für eine Arbeit den passenden statistischen Test auswählen",
+        "Du willst Ergebnisse sauber interpretieren und die nötige Stichprobengröße abschätzen"
+      ],
+      "steps": [
+        "ZIP entpacken",
+        "Ordner als Skill in Claude hochladen",
+        "Daten oder Fragestellung beschreiben und die Analyse starten",
+        "Die mitgelieferte Lizenzdatei (MIT) beim Weitergeben beilegen"
+      ],
+      "category": "Sonstiges",
+      "type": "datei",
+      "file": "quantitative-analysis-skill.zip"
     }
   ]
 }
