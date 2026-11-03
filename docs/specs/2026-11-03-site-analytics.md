@@ -1,9 +1,10 @@
 # Spec: Einfache Besucherstatistik ohne Cookies
 
-- **Status:** Draft
+- **Status:** In Review
 - **Version:** 1
 - **Autor:** Laurenz Polanski (mit Claude)
 - **Erstellt:** 2026-11-03
+- **Approved:** 2026-11-03
 
 ## 1. Ziel
 
@@ -105,11 +106,11 @@ Täglich um 3:30 Uhr werden `stats_views` älter als **2 Tage** zu `stats_daily`
 
 ## 9. Aufgaben
 
-- [ ] T1: Reverse-Proxy und echte Client-IP klären (`trust proxy`), Pfad-Normalisierung und Bot-Erkennung mit Tests (AC-7, AC-10)
-- [ ] T2: Datenmodell, Migration v7, `statsRepo` mit Tests für Hash, Tageswechsel, Besucherzählung, Dauer und Verdichtung (AC-1 bis AC-5, AC-9, AC-11, AC-17)
-- [ ] T3: Melde-Endpunkte inklusive Rate-Limit und DNT/GPC mit Tests (AC-2, AC-7 bis AC-9, AC-14)
-- [ ] T4: Frontend-Hook mit Sichtbarkeitslogik, Beacon und stillem Fehlerverhalten (AC-5, AC-6, AC-8, AC-15)
-- [ ] T5: Admin-Endpunkt und Reiter "Statistik" mit Tests für Zugriffsschutz (AC-12, AC-13)
+- [x] T1: Reverse-Proxy und echte Client-IP klären (`trust proxy`), Pfad-Normalisierung und Bot-Erkennung mit Tests (AC-7, AC-10)
+- [x] T2: Datenmodell, Migration v7, `statsRepo` mit Tests für Hash, Tageswechsel, Besucherzählung, Dauer und Verdichtung (AC-1 bis AC-5, AC-9, AC-11, AC-17)
+- [x] T3: Melde-Endpunkte inklusive Rate-Limit und DNT/GPC mit Tests (AC-2, AC-7 bis AC-9, AC-14)
+- [x] T4: Frontend-Hook mit Sichtbarkeitslogik, Beacon und stillem Fehlerverhalten (AC-5, AC-6, AC-8, AC-15)
+- [x] T5: Admin-Endpunkt und Reiter "Statistik" mit Tests für Zugriffsschutz (AC-12, AC-13)
 - [ ] T6: Datenschutzerklärung, README, manuelle Prüfung mit lokaler Demo-Datenbank (AC-16)
 - [ ] T7: Nach dem Deploy: einige Seiten aufrufen, Zahlen im Admin gegenprüfen, Datenbank auf fehlende IP/User-Agent prüfen
 
@@ -131,5 +132,7 @@ Täglich um 3:30 Uhr werden `stats_views` älter als **2 Tage** zu `stats_daily`
 3. **Referrer:** Soll später gezählt werden, woher Besucher kommen (nur Domain, z. B. "linkedin.com")? Das ist nicht Teil dieser Spec, ließe sich aber ergänzen.
 
 ## 12. Änderungsprotokoll
+
+- v1.1 (2026-11-03): Freigegeben, alle drei Review-Punkte wie vorgeschlagen (2 Tage / 13 Monate, DNT und GPC respektieren, Referrer nicht Teil dieser Spec). T1 ergab: nginx setzt `X-Forwarded-For`, `trust proxy` auf `loopback`.
 
 - v1 (2026-11-03): Erster Entwurf

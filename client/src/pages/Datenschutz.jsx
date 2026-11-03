@@ -37,6 +37,37 @@ export default function Datenschutz() {
         werden, die Angaben werden dann entfernt.
       </p>
 
+      <h2>Besucherstatistik</h2>
+      <p>
+        Zur Reichweitenmessung zählen wir Seitenaufrufe und die Verweildauer, ganz ohne Cookies, ohne Speicherung im
+        Browser und ohne Dienste von Drittanbietern. Die Messung läuft auf unserem eigenen Server.
+      </p>
+      <ul>
+        <li>
+          Gespeichert werden der aufgerufene Seitenbereich (z. B. „Materialien“), das Datum und die Verweildauer. Nicht
+          gespeichert werden IP-Adresse, Browserkennung, Herkunftsseite oder Standort.
+        </li>
+        <li>
+          Um einen Besucher am selben Tag nur einmal zu zählen, wird aus IP-Adresse und Browserangaben kurzzeitig ein
+          Kennwert berechnet. Er nutzt einen zufälligen Schlüssel, der nur im Arbeitsspeicher liegt und täglich
+          wechselt. Ab dem nächsten Tag lässt sich der Kennwert deshalb keiner Person mehr zuordnen und nicht mit
+          anderen Tagen verknüpfen.
+        </li>
+        <li>
+          Einzelne Aufrufe werden nach spätestens zwei Tagen zu Tageswerten zusammengefasst, die Kennwerte werden dabei
+          gelöscht. Die Tageswerte löschen wir nach etwa 13 Monaten.
+        </li>
+        <li>
+          Wenn Ihr Browser „Do Not Track“ oder „Global Privacy Control“ sendet, wird nichts gemessen. Der Admin-Bereich
+          wird nicht gemessen.
+        </li>
+      </ul>
+      <p>
+        Rechtsgrundlage ist unser berechtigtes Interesse an einer bedarfsgerechten Gestaltung und Weiterentwicklung der
+        Seite (Art. 6 Abs. 1 lit. f DSGVO). Da keine Informationen auf Ihrem Gerät gespeichert oder ausgelesen werden,
+        ist keine Einwilligung nötig.
+      </p>
+
       <h2>Speicherdauer</h2>
       <p>
         Stellen werden nach Ablauf der Bewerbungsfrist bzw. spätestens 90 Tage nach der letzten Aktualisierung nicht mehr

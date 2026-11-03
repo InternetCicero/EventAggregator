@@ -105,3 +105,12 @@ Der Reiter **Materialien** (`/materialien`) braucht kein Backend. Spezifikatione
 
 3. `cd server && npm test` prüft Pflichtfelder, Dateiendungen, Bildgröße, Links und dass jede Datei existiert; `cd client && npm test` prüft die Markdown-Aufbereitung.
 4. Committen und nach `main` pushen, der Auto-Deploy liefert die Seite aus.
+
+## Besucherstatistik
+
+Einfache Zählung ohne Cookies und ohne IP-Speicherung (Spec `docs/specs/2026-11-03-site-analytics.md`).
+
+- Das Frontend meldet pro Seitenwechsel `POST /api/stats/view` und, solange die Seite sichtbar ist, alle 15 Sekunden `POST /api/stats/ping`. `Do Not Track`/`Global Privacy Control` schalten die Messung ab, ebenso Bots und `/admin`.
+- Der Server speichert nur Tag, Seitenmuster (z. B. `/materialien/:id`) und einen Tageshash (Salz nur im Arbeitsspeicher, täglich neu). Einzelaufrufe werden täglich um 3:30 Uhr nach 2 Tagen zu Tageswerten (`stats_daily`) verdichtet, Tageswerte nach 395 Tagen gelöscht.
+- Auswertung im Admin-Bereich unter „Statistik“ (7, 30, 90 Tage). „Besucher“ ist die Summe der Tagesbesucher.
+- Hinter nginx gilt `trust proxy` für `127.0.0.1`, damit die echte IP aus `X-Forwarded-For` für den Tageshash genutzt wird.

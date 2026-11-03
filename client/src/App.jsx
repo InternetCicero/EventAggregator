@@ -1,4 +1,5 @@
-import { Link, NavLink, Route, Routes } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Link, NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import EventList from './pages/EventList';
 import SubmitEvent from './pages/SubmitEvent';
 import AdminDashboard from './pages/AdminDashboard';
@@ -9,9 +10,29 @@ import Datenschutz from './pages/Datenschutz';
 import Impressum from './pages/Impressum';
 import Materialien from './pages/Materialien';
 import MaterialDetail from './pages/MaterialDetail';
+import { browserTracker, isTrackedPath, trackingAllowed } from './lib/stats';
 import './App.css';
 
+// Besucherstatistik: Aufruf und Verweildauer, ohne Cookies (siehe Datenschutzerklärung)
+function useTracking() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    if (!trackingAllowed(navigator) || !isTrackedPath(pathname)) return undefined;
+    const tracker = browserTracker();
+    const onVisibility = () => (document.visibilityState === 'hidden' ? tracker.hidden() : tracker.visible());
+    tracker.view(pathname);
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('pagehide', tracker.hidden);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('pagehide', tracker.hidden);
+      tracker.stop();
+    };
+  }, [pathname]);
+}
+
 export default function App() {
+  useTracking();
   return (
     <div className="app">
       <header className="app-header">

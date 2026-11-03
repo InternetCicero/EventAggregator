@@ -9,8 +9,15 @@ const { validateJob } = require('../jobs/validateJob');
 const { runSource, runAllActiveSources } = require('../scraper/runSource');
 const { validateSourcePagination } = require('../scraper/validateSource');
 const db = require('../db/index');
+const statsRepo = require('../db/statsRepo');
 
 router.use(adminAuth);
+
+router.get('/stats', (req, res) => {
+  const days = Number(req.query.days) || 7;
+  if (![7, 30, 90].includes(days)) return res.status(400).json({ error: 'days muss 7, 30 oder 90 sein' });
+  res.json(statsRepo.getSummary(days));
+});
 
 router.get('/events', (req, res) => {
   const status = req.query.status || 'pending';

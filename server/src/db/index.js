@@ -165,7 +165,7 @@ if (!eventColumns.includes('duplicate_of')) {
 // (online/vor Ort) wird für bestehende Events nachträglich befüllt.
 // Läuft bewusst nur einmal, damit spätere manuelle Korrekturen im
 // Admin-Bereich bei einem Neustart nicht wieder überschrieben werden.
-const CURRENT_SCHEMA_VERSION = 6;
+const CURRENT_SCHEMA_VERSION = 7;
 const { user_version: schemaVersion } = db.prepare('PRAGMA user_version').get();
 
 // Alte Kategorie -> bester Startpunkt im neuen System, falls keine
@@ -330,6 +330,31 @@ if (schemaVersion < 6) {
   });
   migrate();
 }
+
+// Besucherstatistik ohne personenbezogene Daten (Spec 2026-11-03-site-analytics):
+// stats_views hält Einzelaufrufe nur kurz (Tageskennung statt IP), stats_daily die
+// verdichteten Tageswerte. Neue Tabellen, daher keine Datenmigration (v7).
+db.exec(`
+  CREATE TABLE IF NOT EXISTS stats_views (
+    id TEXT PRIMARY KEY,
+    day TEXT NOT NULL,
+    path TEXT NOT NULL,
+    visitor TEXT NOT NULL,
+    started_at INTEGER NOT NULL,
+    last_ping_at INTEGER NOT NULL,
+    seconds INTEGER NOT NULL DEFAULT 0
+  );
+  CREATE INDEX IF NOT EXISTS idx_stats_views_day ON stats_views(day);
+  CREATE TABLE IF NOT EXISTS stats_daily (
+    day TEXT NOT NULL,
+    path TEXT NOT NULL,
+    views INTEGER NOT NULL,
+    visitors INTEGER NOT NULL,
+    total_seconds INTEGER NOT NULL,
+    timed_views INTEGER NOT NULL,
+    PRIMARY KEY (day, path)
+  );
+`);
 
 if (schemaVersion < CURRENT_SCHEMA_VERSION) {
   db.pragma(`user_version = ${CURRENT_SCHEMA_VERSION}`);

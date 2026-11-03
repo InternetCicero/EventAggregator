@@ -1354,3 +1354,38 @@ button:disabled {
   align-items: center;
   gap: 16px;
 }
+
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+.stats-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 8px;
+}
+.stats-card strong {
+  font-size: 1.6rem;
+}
+.stats-card span {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.stats-days {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 90px;
+  margin-bottom: 1.5rem;
+}
+.stats-bar {
+  flex: 1;
+  min-height: 2px;
+  background: var(--accent, #7a1f2b);
+  border-radius: 2px 2px 0 0;
+}
