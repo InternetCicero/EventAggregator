@@ -51,6 +51,51 @@
       "category": "CV & Anschreiben",
       "type": "link",
       "url": "https://canva.link/53kiljvv86pkft4"
+    },
+    {
+      "id": "interview-auswertung-mayring-skill",
+      "title": "Skill: Interviews auswerten nach Mayring",
+      "description": "Claude-Skill für Leitfadeninterviews: von der Forschungsfrage bis zur Auswertung nach Mayring (TH-Köln-Skript, Vogt & Werner 2014).",
+      "outcome": [
+        "Regelgeleiteter Ablauf: Forschungsfrage, Leitfaden, Transkription, Auswertung",
+        "Kategoriensystem mit Definitionen, Ankerbeispielen und Codierregeln",
+        "Vorlagen für Memos, Paraphrasierung und die Gliederung der Arbeit"
+      ],
+      "useWhen": [
+        "Du schreibst eine Abschlussarbeit mit Leitfadeninterviews",
+        "Du willst Transkripte nachvollziehbar codieren und die Ergebnisse sauber auswerten"
+      ],
+      "steps": [
+        "ZIP entpacken",
+        "Ordner als Skill in Claude hochladen",
+        "Forschungsfrage oder Transkripte einfügen und die Auswertung starten",
+        "Zitate und Codierungen am Transkript gegenprüfen"
+      ],
+      "category": "Sonstiges",
+      "type": "datei",
+      "file": "interview-auswertung-mayring-skill.zip"
+    },
+    {
+      "id": "qualitative-inhaltsanalyse-kompakt-skill",
+      "title": "Skill: Qualitative Inhaltsanalyse (kompakt)",
+      "description": "Schlanker Claude-Skill für Mayring-Analysen mit Code-Buch und Zitatsicherung, für fertige Transkripte oder PDFs.",
+      "outcome": [
+        "Code-Buch mit Kategorie, Definition, Ankerzitat und Quelle",
+        "Wörtliche Zitate ohne Veränderung für nachvollziehbare Codierung",
+        "Ergebnisdarstellung mit Methodenkritik"
+      ],
+      "useWhen": [
+        "Du hast fertige Transkripte oder PDFs und willst sie schnell nach Mayring auswerten",
+        "Du brauchst nur die Analyse und nicht den ganzen Forschungsprozess"
+      ],
+      "steps": [
+        "ZIP entpacken",
+        "Ordner als Skill in Claude hochladen",
+        "Transkripte oder PDFs einfügen und die Analyse starten"
+      ],
+      "category": "Sonstiges",
+      "type": "datei",
+      "file": "qualitative-inhaltsanalyse-kompakt-skill.zip"
     }
   ]
 }
