@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import { api } from '../api';
 import JobsAdmin from '../components/admin/JobsAdmin';
 import CompaniesAdmin from '../components/admin/CompaniesAdmin';
+import StatsAdmin from '../components/admin/StatsAdmin';
 
 const TABS = [
   { key: 'events', label: 'Events' },
   { key: 'jobs', label: 'Stellen' },
   { key: 'companies', label: 'Firmen' },
+  { key: 'stats', label: 'Statistik' },
 ];
 
 function LoginForm({ onLogin }) {
@@ -636,6 +638,7 @@ export default function AdminDashboard() {
       )}
       {tab === 'jobs' && <JobsAdmin />}
       {tab === 'companies' && <CompaniesAdmin />}
+      {tab === 'stats' && <StatsAdmin />}
     </div>
   );
 }

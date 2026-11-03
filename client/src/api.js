@@ -129,6 +129,8 @@ export const api = {
     deleteCompany: (id) =>
       fetch(`${BASE}/admin/companies/${id}`, { method: 'DELETE', headers: authHeader() }).then(handle),
 
+    getStats: (days) => fetch(`${BASE}/admin/stats?days=${days}`, { headers: authHeader() }).then(handle),
+
     getSources: () => fetch(`${BASE}/admin/sources`, { headers: authHeader() }).then(handle),
     createSource: (data) =>
       fetch(`${BASE}/admin/sources`, {

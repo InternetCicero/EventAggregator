@@ -4,6 +4,7 @@ const cron = require('node-cron');
 const app = require('./app');
 const { runAllActiveSources } = require('./scraper/runSource');
 const jobsRepo = require('./db/jobsRepo');
+const statsRepo = require('./db/statsRepo');
 
 const PORT = process.env.PORT || 4000;
 const JOB_MAX_AGE_DAYS = Number(process.env.JOB_MAX_AGE_DAYS) || 90;
@@ -32,6 +33,14 @@ function expireJobs() {
 }
 cron.schedule('15 3 * * *', expireJobs);
 expireJobs();
+
+// Einzelaufrufe der Besucherstatistik zu Tageswerten verdichten (Spec AC-11)
+function compactStats() {
+  const removed = statsRepo.compactOldViews();
+  if (removed) console.log(`[cron] ${removed} Statistik-Aufruf(e) verdichtet`);
+}
+cron.schedule('30 3 * * *', compactStats);
+compactStats();
 
 app.listen(PORT, () => {
   console.log(`Server läuft auf http://localhost:${PORT}`);
