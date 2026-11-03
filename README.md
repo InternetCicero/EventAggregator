@@ -88,10 +88,10 @@ Beispiel Hackathon Hub: Listen-URL `https://hackathonhub.eu/events`, Item `a.blo
 
 ## Materialien hinzufügen
 
-Der Reiter **Materialien** (`/materialien`) braucht kein Backend. Spezifikationen: [v1](docs/specs/2026-11-02-materialien.md), [Formate](docs/specs/2026-11-02-materialien-formate.md). Die Seite filtert nach **Thema** (`category`) und **Format** (`type`).
+Der Reiter **Materialien** (`/materialien`) braucht kein Backend. Spezifikationen: [v1](docs/specs/2026-11-02-materialien.md), [Formate](docs/specs/2026-11-02-materialien-formate.md), [Detailseite](docs/specs/2026-11-03-materialien-detailseite.md). Die Übersicht filtert nach **Thema** (`category`) und **Format** (`type`), jedes Material hat eine eigene Seite unter `/materialien/<id>`.
 
 1. Datei (außer bei Links) in `client/public/materialien/` ablegen. Der Dateiname ist zugleich der Download-Name, also einen sprechenden wählen (z. B. `cv-optimierung-prompt.md`).
-2. In `client/src/data/materials.json` unter `items` einen Eintrag ergänzen. Immer nötig: `id` (eindeutig), `title`, `description`, `category` (aus `categories`), `type`. Je Format zusätzlich:
+2. In `client/src/data/materials.json` unter `items` einen Eintrag ergänzen. Immer nötig: `id` (eindeutig, nur `a-z`, `0-9`, `-`), `title`, `description` (ein Satz für die Karte, höchstens 140 Zeichen), `outcome` (Liste, 1–4 Kurzsätze: Was es bringt), `useWhen` (Liste, 1–4 Kurzsätze: Wann nutzen), `category` (aus `categories`), `type`. Optional: `steps` (Liste, 1–8 Kurzsätze: So geht's). Jeder Listeneintrag hat höchstens 160 Zeichen. Je Format zusätzlich:
 
 | `type` | Zusätzlich | Datei |
 |---|---|---|

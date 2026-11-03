@@ -8,6 +8,7 @@ import SubmitJob from './pages/SubmitJob';
 import Datenschutz from './pages/Datenschutz';
 import Impressum from './pages/Impressum';
 import Materialien from './pages/Materialien';
+import MaterialDetail from './pages/MaterialDetail';
 import './App.css';
 
 export default function App() {
@@ -42,6 +43,7 @@ export default function App() {
           <Route path="/jobs/einreichen" element={<SubmitJob />} />
           <Route path="/jobs/:id" element={<JobDetail />} />
           <Route path="/materialien" element={<Materialien />} />
+          <Route path="/materialien/:id" element={<MaterialDetail />} />
           <Route path="/datenschutz" element={<Datenschutz />} />
           <Route path="/impressum" element={<Impressum />} />
           <Route path="/admin" element={<AdminDashboard />} />

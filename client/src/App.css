@@ -1118,13 +1118,25 @@ button:disabled {
   border-color: var(--navy);
 }
 
+.material-card {
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.material-card:hover,
+.material-card:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 2px 10px var(--navy-tint);
+}
+
 .material-card p {
   margin: 0;
 }
 
-.material-prompt summary {
-  cursor: pointer;
-  color: var(--heading);
+.material-more {
+  margin-top: auto;
+  color: var(--accent-hover);
   font-weight: 600;
 }
 
@@ -1147,12 +1159,6 @@ button:disabled {
   font-size: 0.9rem;
 }
 
-.material-download {
-  align-self: flex-start;
-  margin-top: auto;
-  color: var(--accent-hover);
-  font-weight: 600;
-}
 
 .material-text {
   margin: 10px 0;
@@ -1217,4 +1223,111 @@ button:disabled {
   max-width: 100%;
   max-height: 78vh;
   margin: 0 auto 10px;
+}
+
+/* Materialien: Detailseite */
+.material-detail {
+  max-width: 820px;
+}
+
+.material-back {
+  display: inline-block;
+  margin-bottom: 14px;
+  color: var(--accent-hover);
+  font-weight: 600;
+}
+
+.material-lead {
+  font-size: 1.05rem;
+  line-height: 1.55;
+}
+
+.material-info {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 20px 0 16px;
+}
+
+.material-info-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 14px 18px;
+}
+
+.material-detail h2 {
+  font-size: 1rem;
+  margin: 0 0 8px;
+}
+
+.material-info-block ul,
+.material-info-block ol {
+  margin: 0;
+  padding-left: 20px;
+  line-height: 1.55;
+}
+
+.material-info-block li + li {
+  margin-top: 4px;
+}
+
+.material-detail > .material-info-block {
+  margin-bottom: 16px;
+}
+
+.material-asset {
+  margin-top: 24px;
+  padding: 18px;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+  background: var(--surface);
+}
+
+.material-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.material-btn {
+  display: inline-block;
+  background: var(--accent);
+  color: var(--offwhite);
+  border-radius: 4px;
+  padding: 10px 16px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.material-btn:hover {
+  background: var(--accent-hover);
+}
+
+.material-file {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.material-file-name {
+  overflow-wrap: anywhere;
+  flex: 1 1 200px;
+}
+
+.material-image--large {
+  height: auto;
+  max-height: 460px;
+  object-fit: contain;
+  background: var(--surface);
+}
+
+@media (max-width: 640px) {
+  .material-info {
+    grid-template-columns: 1fr;
+  }
 }
