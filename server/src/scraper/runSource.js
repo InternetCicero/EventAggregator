@@ -348,7 +348,7 @@ async function runSource(source, deps = {}) {
           duplicate_of: duplicateOf,
         });
         inserted++;
-      } catch (err) {
+      } catch {
         failed++;
       }
     }

@@ -119,7 +119,7 @@
 
 .event-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
   gap: 16px;
 }
 
@@ -131,6 +131,8 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .event-card-badges {
@@ -246,6 +248,7 @@
 /* Submit event: mode switch */
 .mode-switch {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: 16px;
 }
@@ -428,6 +431,7 @@ button:disabled {
 
 .section-header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
@@ -436,11 +440,13 @@ button:disabled {
 
 .section-header > div {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
 .bulk-bar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
@@ -458,6 +464,7 @@ button:disabled {
 
 .bulk-bar-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -481,6 +488,7 @@ button:disabled {
   padding: 10px 12px;
   border-bottom: 1px solid var(--border);
   font-size: 0.88rem;
+  overflow-wrap: anywhere;
 }
 
 .admin-table th {
@@ -881,13 +889,20 @@ button:disabled {
   align-items: flex-start;
 }
 
+.job-detail-header {
+  min-width: 0;
+}
+
 .job-detail-header h1 {
   margin: 0;
+  overflow-wrap: anywhere;
   line-height: 1.25;
 }
 
 .job-detail-company {
   margin: 0;
+  overflow-wrap: anywhere;
+  max-width: 100%;
   font-weight: 600;
   color: var(--text-muted);
 }

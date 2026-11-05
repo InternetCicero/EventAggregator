@@ -11,7 +11,7 @@ const { extractJobFromUrl } = require('../scraper/extractFromUrl');
 // Öffentliche Sicht auf eine Stelle: Kontakt-E-Mail nur mit Einwilligung
 // (AC-15), der Name der einreichenden Person ist reine Moderationsinfo.
 function toPublic(job) {
-  const { submitter_name, contact_email, ...rest } = job;
+  const { submitter_name: _submitter, contact_email, ...rest } = job;
   return { ...rest, contact_email: job.contact_consent ? contact_email : null };
 }
 
