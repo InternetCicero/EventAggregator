@@ -90,8 +90,8 @@ Layout-Fehler wie der Überlauf der Admin-Quellentabelle durch eine lange URL (F
 - [x] T3: Layout-Tests für öffentliche Seiten und Detailseiten, Konsolen-Wächter (AC-1, AC-2, AC-5, AC-6)
 - [x] T4: Admin-Tests inklusive Quellentabelle mit langer URL; Gegenprobe ohne den Fix aus #16 (AC-3, AC-4, AC-7)
 - [x] T5: CI-Job `ui-tests` mit Browser-Cache und Artefakt-Upload; `npm audit` als Warnung (AC-11)
-- [ ] T6: `deploy.yml` auf `workflow_run` umbauen, Healthcheck nach dem Deploy (AC-8, AC-9)
-- [ ] T7: `dependabot.yml` (AC-10), README-Abschnitt „Tests und Pipeline"
+- [x] T6: `deploy.yml` auf `workflow_run` umbauen, Healthcheck nach dem Deploy (AC-8, AC-9)
+- [x] T7: `dependabot.yml` (AC-10), README-Abschnitt „Tests und Pipeline"
 - [ ] T8: Nach dem Merge: erster Deploy über den neuen Weg beobachten, Dependabot-Lauf abwarten (AC-8 bis AC-10, live)
 
 Reihenfolge: T1 bis T5 in einem PR (Teil A), T6 bis T7 in einem zweiten PR (Teil B), damit ein Pipeline-Fehler nicht die Tests blockiert.

@@ -1,7 +1,11 @@
 name: Deploy
 
+# Rollt erst aus, wenn der CI-Lauf für den Push auf main erfolgreich war.
+# Manuell (workflow_dispatch) geht es weiterhin ohne CI-Bedingung, z. B. für ein erneutes Ausrollen.
 on:
-  push:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
     branches: [main]
   workflow_dispatch:
 
@@ -11,43 +15,18 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  server-tests:
-    name: Backend-Tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: server/package-lock.json
-      - run: npm ci
-        working-directory: server
-      - run: npm test
-        working-directory: server
-
-  build-check:
-    name: Frontend-Build prüfen
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: client/package-lock.json
-      - run: npm ci
-        working-directory: client
-      - run: npm test
-        working-directory: client
-      - run: npm run build
-        working-directory: client
-
   deploy:
     name: Auf VM ausrollen
-    needs: [server-tests, build-check]
     runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push')
     steps:
+      - name: Hinweis zum manuellen Start
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "::notice::Manuelles Deploy, ohne Prüfung des CI-Laufs."
+
       - name: SSH-Schlüssel einrichten
         env:
           VM_SSH_KEY: ${{ secrets.VM_SSH_KEY }}
@@ -65,3 +44,11 @@ jobs:
         run: |
           ssh -i ~/.ssh/deploy_key "$VM_USER@$VM_HOST" \
             'sudo bash /opt/eventaggregator/deploy/update.sh'
+
+      - name: Live-Seite prüfen
+        run: |
+          for url in https://student.laurenz-polanski.de/api/health https://student.laurenz-polanski.de/; do
+            curl --fail --silent --show-error --output /dev/null \
+              --retry 5 --retry-delay 5 --retry-all-errors "$url"
+            echo "OK: $url"
+          done

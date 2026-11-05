@@ -129,3 +129,5 @@ npm test
 ```
 
 Bei einem Fehlschlag im CI lädt der Job Screenshots und Trace als Artefakt "ui-test-ergebnisse" hoch.
+
+**Deploy:** Der Workflow "Deploy" startet automatisch, sobald der CI-Lauf eines Pushs auf `main` erfolgreich war (er erscheint unter *Actions*, nicht am PR). Danach prüft er `https://student.laurenz-polanski.de/api/health` und die Startseite; ohne Antwort wird der Lauf rot. Manuell geht es über *Actions → Deploy → Run workflow* (ohne CI-Bedingung). Dependabot schlägt monatlich gebündelte Updates für npm und GitHub Actions vor.
