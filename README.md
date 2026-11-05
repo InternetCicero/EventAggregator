@@ -114,3 +114,18 @@ Einfache Zählung ohne Cookies und ohne IP-Speicherung (Spec `docs/specs/2026-11
 - Der Server speichert nur Tag, Seitenmuster (z. B. `/materialien/:id`) und einen Tageshash (Salz nur im Arbeitsspeicher, täglich neu). Einzelaufrufe werden täglich um 3:30 Uhr nach 2 Tagen zu Tageswerten (`stats_daily`) verdichtet, Tageswerte nach 395 Tagen gelöscht.
 - Auswertung im Admin-Bereich unter „Statistik“ (7, 30, 90 Tage). „Besucher“ ist die Summe der Tagesbesucher.
 - Hinter nginx gilt `trust proxy` für `127.0.0.1`, damit die echte IP aus `X-Forwarded-For` für den Tageshash genutzt wird.
+
+## Tests und Pipeline
+
+- `server`: `npm test` (Unit- und API-Tests), `npm run lint`
+- `client`: `npm test`, `npm run lint`, `npm run build`
+- `e2e`: Browser-Tests mit Playwright (Chromium, Handy 375 px und Desktop 1280 px). Sie starten ein Testbackend mit temporärer Datenbank und absichtlich extremen Texten (200 Zeichen ohne Leerzeichen, 300 Zeichen lange URL) und prüfen, dass nichts über den Rand läuft und keine Konsolenfehler auftreten.
+
+```bash
+cd e2e
+npm ci
+npx playwright install chromium   # einmalig
+npm test
+```
+
+Bei einem Fehlschlag im CI lädt der Job Screenshots und Trace als Artefakt "ui-test-ergebnisse" hoch.

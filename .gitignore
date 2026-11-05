@@ -5,3 +5,7 @@ dist/
 *.db-shm
 *.db-wal
 .DS_Store
+
+# UI-Tests
+e2e/test-results/
+e2e/playwright-report/
