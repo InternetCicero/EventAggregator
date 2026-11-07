@@ -18,7 +18,8 @@ function formatDate(iso) {
   });
 }
 
-export default function EventCard({ event }) {
+// reasons: optionale Begründungen aus "Für dich" (z. B. ["Kategorie Consulting", "in München"])
+export default function EventCard({ event, reasons }) {
   return (
     <article className="event-card">
       <div className="event-card-badges">
@@ -40,6 +41,7 @@ export default function EventCard({ event }) {
         <span>{formatDate(event.start_date)}</span>
         {event.location && <span>{event.location}</span>}
       </div>
+      {reasons?.length > 0 && <p className="event-card-reasons">Warum: {reasons.join(' · ')}</p>}
       {event.description && <p className="event-card-desc">{event.description}</p>}
       {event.tags?.length > 0 && (
         <div className="event-card-tags">

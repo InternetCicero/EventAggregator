@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
+import SectionTabs from '../components/SectionTabs';
+import { JOB_TABS } from '../lib/sections';
 import JobFields from '../components/JobFields';
 import { emptyJobForm } from '../lib/jobForm';
 
@@ -80,6 +82,7 @@ export default function SubmitJob() {
 
   return (
     <div className="submit-page">
+      <SectionTabs tabs={JOB_TABS} label="Jobs & Praktika" />
       <h1>Stelle einreichen</h1>
       <p className="hint">
         Praktikum, Werkstudentenjob oder Einstiegsstelle, die du empfehlen kannst? Die Stelle wird nach kurzer Prüfung

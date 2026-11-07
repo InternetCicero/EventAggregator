@@ -6,6 +6,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import JobList from './pages/JobList';
 import JobDetail from './pages/JobDetail';
 import SubmitJob from './pages/SubmitJob';
+import ForYou from './pages/ForYou';
 import Datenschutz from './pages/Datenschutz';
 import Impressum from './pages/Impressum';
 import Materialien from './pages/Materialien';
@@ -31,8 +32,17 @@ function useTracking() {
   }, [pathname]);
 }
 
+// Zu welchem Hauptbereich gehört eine Seite? (für die Markierung in der Navigation)
+function sectionOf(pathname) {
+  if (pathname === '/' || pathname === '/fuer-dich' || pathname === '/einreichen') return 'events';
+  if (pathname === '/jobs' || pathname.startsWith('/jobs/')) return 'jobs';
+  return null;
+}
+
 export default function App() {
   useTracking();
+  const section = sectionOf(useLocation().pathname);
+  const sectionClass = (name) => ({ isActive }) => (isActive || section === name ? 'active' : undefined);
   return (
     <div className="app">
       <header className="app-header">
@@ -42,14 +52,12 @@ export default function App() {
             <span className="brand-word">Student Hub</span>
           </NavLink>
           <nav className="app-nav">
-            <NavLink to="/" end>
+            <NavLink to="/" end className={sectionClass('events')}>
               Events
             </NavLink>
-            <NavLink to="/einreichen">Event hinzufügen</NavLink>
-            <NavLink to="/jobs" end>
+            <NavLink to="/jobs" end className={sectionClass('jobs')}>
               Jobs & Praktika
             </NavLink>
-            <NavLink to="/jobs/einreichen">Stelle einreichen</NavLink>
             <NavLink to="/materialien">Materialien</NavLink>
             <NavLink to="/admin">Admin</NavLink>
           </nav>
@@ -59,6 +67,7 @@ export default function App() {
       <main className="app-main">
         <Routes>
           <Route path="/" element={<EventList />} />
+          <Route path="/fuer-dich" element={<ForYou />} />
           <Route path="/einreichen" element={<SubmitEvent />} />
           <Route path="/jobs" element={<JobList />} />
           <Route path="/jobs/einreichen" element={<SubmitJob />} />

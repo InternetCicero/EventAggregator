@@ -37,6 +37,19 @@ export default function Datenschutz() {
         werden, die Angaben werden dann entfernt.
       </p>
 
+      <h2>Persönliches Profil („Für dich“)</h2>
+      <p>
+        Unter „Events → Für dich“ können Sie ein Interessenprofil anlegen (Kategorien, Schlagwörter, Städte, Format,
+        Zeitraum). Es wird ausschließlich im Speicher Ihres Browsers (localStorage) abgelegt und nie an unseren Server
+        übertragen. Auch die Empfehlungen werden in Ihrem Browser berechnet: Ihr Browser lädt dieselbe Event-Liste wie
+        alle anderen Besucher und sortiert sie lokal. Wir erfahren also nicht, was in Ihrem Profil steht.
+      </p>
+      <p>
+        Das Speichern erfolgt nur, wenn Sie das Profil selbst anlegen, und ist für diese von Ihnen gewünschte Funktion
+        unbedingt erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG). Sie können das Profil jederzeit über „Profil löschen“ entfernen
+        oder indem Sie die Website-Daten in Ihrem Browser löschen.
+      </p>
+
       <h2>Besucherstatistik</h2>
       <p>
         Zur Reichweitenmessung zählen wir Seitenaufrufe und die Verweildauer, ganz ohne Cookies, ohne Speicherung im
@@ -64,7 +77,7 @@ export default function Datenschutz() {
       </ul>
       <p>
         Rechtsgrundlage ist unser berechtigtes Interesse an einer bedarfsgerechten Gestaltung und Weiterentwicklung der
-        Seite (Art. 6 Abs. 1 lit. f DSGVO). Da keine Informationen auf Ihrem Gerät gespeichert oder ausgelesen werden,
+        Seite (Art. 6 Abs. 1 lit. f DSGVO). Da die Statistik keine Informationen auf Ihrem Gerät speichert oder ausliest,
         ist keine Einwilligung nötig.
       </p>
 
