@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
 import JobCard from '../components/JobCard';
+import SectionTabs from '../components/SectionTabs';
+import { JOB_TABS } from '../lib/sections';
 import JobFilters from '../components/JobFilters';
 import { emptyJobFilters } from '../lib/jobForm';
 
@@ -30,6 +32,7 @@ export default function JobList() {
 
   return (
     <div className="event-list-page">
+      <SectionTabs tabs={JOB_TABS} label="Jobs & Praktika" />
       <div className="page-intro">
         <h1>Jobs & Praktika</h1>
         <p className="hint">

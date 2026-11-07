@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { api } from '../api';
+import SectionTabs from '../components/SectionTabs';
+import { EVENT_TABS } from '../lib/sections';
 
 const initialForm = {
   title: '',
@@ -213,6 +215,7 @@ export default function SubmitEvent() {
 
   return (
     <div className="submit-page">
+      <SectionTabs tabs={EVENT_TABS} label="Events" />
       <h1>Event hinzufügen</h1>
       <p className="hint">
         Das Event wird nach kurzer Prüfung freigeschaltet und erscheint anschließend in der Übersicht.

@@ -55,6 +55,15 @@ Spezifikation: [docs/specs/2026-10-04-jobs-praktika.md](docs/specs/2026-10-04-jo
 
 Für ein zweites Backend parallel (z. B. mit Testdatenbank) kann der Vite-Proxy per `API_TARGET=http://localhost:4001` umgelenkt werden; die Datenbank lässt sich mit `EVENTS_DB_PATH` wählen.
 
+## Für dich (persönliche Event-Empfehlungen)
+
+Spezifikation: [docs/specs/2026-11-07-fuer-dich.md](docs/specs/2026-11-07-fuer-dich.md).
+
+- Reiter **Events → Für dich** (`/fuer-dich`): Interessenprofil aus Kategorien (interessiert / nicht interessiert), Schlagwörtern, Haupt- und Zweitstadt, Format und Zeitraum
+- Das Profil liegt **nur im `localStorage`** des Browsers (`studenthub.profile`) und wird nie an den Server geschickt; der Browser lädt die normale Event-Liste und sortiert sie lokal
+- Regelbasierte Punktwertung ohne KI in `client/src/lib/matching/` (Gewichte in `weights.js`), Tests in `client/test/matching-*.test.js`; ein UI-Test (`e2e/tests/fuer-dich.spec.js`) prüft, dass keine Profildaten in Anfragen landen
+- Die Unternavigation (Reiter) für Events und Jobs liegt in `client/src/components/SectionTabs.jsx` und `client/src/lib/sections.js`
+
 ## Deployment
 
 Anleitung für dauerhaft kostenloses Hosting auf einer Google-Cloud-`e2-micro`-VM

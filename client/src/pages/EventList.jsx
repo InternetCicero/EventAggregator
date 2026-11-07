@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { api } from '../api';
 import EventCard from '../components/EventCard';
 import EventFilters from '../components/EventFilters';
+import SectionTabs from '../components/SectionTabs';
+import { EVENT_TABS } from '../lib/sections';
 import { emptyEventFilters } from '../lib/eventFilters';
 
 export default function EventList() {
@@ -42,6 +44,7 @@ export default function EventList() {
 
   return (
     <div className="event-list-page">
+      <SectionTabs tabs={EVENT_TABS} label="Events" />
       <EventFilters
         filters={filters}
         onChange={setFilters}
