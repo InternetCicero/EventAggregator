@@ -10,13 +10,29 @@ const { runSource, runAllActiveSources } = require('../scraper/runSource');
 const { validateSourcePagination } = require('../scraper/validateSource');
 const db = require('../db/index');
 const statsRepo = require('../db/statsRepo');
+const { parseStatsQuery } = require('../stats/range');
 
 router.use(adminAuth);
 
 router.get('/stats', (req, res) => {
-  const days = Number(req.query.days) || 7;
-  if (![7, 30, 90].includes(days)) return res.status(400).json({ error: 'days muss 7, 30 oder 90 sein' });
-  res.json(statsRepo.getSummary(days));
+  const q = parseStatsQuery(req.query);
+  if (q.error) return res.status(400).json({ error: q.error });
+  res.json(statsRepo.getDashboard(q));
+});
+
+// Tageswerte als CSV (nur Aggregate). ";" und Dezimalkomma, damit deutsches Excel es direkt öffnet.
+router.get('/stats.csv', (req, res) => {
+  const q = parseStatsQuery(req.query);
+  if (q.error) return res.status(400).json({ error: q.error });
+  const data = statsRepo.getDashboard({ ...q, granularity: 'day' });
+  const num = (n) => String(n).replace('.', ',');
+  const lines = ['Datum;Besucher;Aufrufe;Aufrufe je Besucher;Verweildauer in Sekunden'];
+  for (const d of data.perDay) {
+    lines.push([d.day, d.visitors, d.views, num(d.visitors ? Math.round((d.views / d.visitors) * 10) / 10 : 0), d.avgSeconds].join(';'));
+  }
+  res.set('Content-Type', 'text/csv; charset=utf-8');
+  res.set('Content-Disposition', `attachment; filename="statistik-${data.from}_${data.to}.csv"`);
+  res.send('\uFEFF' + lines.join('\r\n') + '\r\n');
 });
 
 router.get('/events', (req, res) => {

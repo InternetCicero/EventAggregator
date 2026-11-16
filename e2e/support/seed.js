@@ -3,6 +3,8 @@ const jobsRepo = require('../../server/src/db/jobsRepo');
 const sourcesRepo = require('../../server/src/db/sourcesRepo');
 const { validateJob } = require('../../server/src/jobs/validateJob');
 const { dimensions } = require('../../server/src/db/vibe');
+const db = require('../../server/src/db/index');
+const statsRepo = require('../../server/src/db/statsRepo');
 
 // Wörter ohne Leerzeichen sind der härteste Fall für Zeilenumbrüche.
 const LONG_WORD = 'Supercalifragilistisch'.repeat(9); // ~200 Zeichen
@@ -67,4 +69,20 @@ function seed() {
   });
 }
 
-module.exports = { seed, LONG_WORD, LONG_URL };
+// 120 Tage Statistik: normale Werte, ein Tag mit sehr hohen Zahlen (Beschriftungen/Karten dürfen nicht überlaufen)
+function seedStats() {
+  const today = statsRepo.dayOf(Date.now());
+  const ins = db.prepare(
+    'INSERT INTO stats_daily (day, path, views, visitors, total_seconds, timed_views) VALUES (?, ?, ?, ?, ?, ?)',
+  );
+  const pages = ['/', '/jobs', '/jobs/:id', '/materialien', '/materialien/:id', '/einreichen', '/impressum'];
+  for (let i = 1; i <= 120; i++) {
+    const day = statsRepo.shiftDay(today, -i);
+    const visitors = i === 3 ? 1234567 : 20 + ((i * 7) % 45);
+    const views = visitors * 2 + 3;
+    ins.run(day, '*', views, visitors, visitors * 40, visitors);
+    pages.forEach((path, n) => ins.run(day, path, Math.round(views / (n + 2)), Math.round(visitors / (n + 2)), 0, 0));
+  }
+}
+
+module.exports = { seed, seedStats, LONG_WORD, LONG_URL };
