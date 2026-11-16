@@ -9,6 +9,7 @@ module.exports = [
   'Banking & Finance',
   'Start-up & Venture Capital',
   'Corporate & Industry',
+  'Legal',
   'Messen & Karrieretage',
   'Bildung & Vortrag',
   'Sonstiges',
