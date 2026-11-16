@@ -41,6 +41,10 @@ const CATEGORY_RULES = [
     pattern: /messe|jobmesse|firmenkontaktmesse|karrieretag|career\s*(?:day|fair)/i,
   },
   {
+    category: 'Legal',
+    pattern: /\blegal\b|legal[- ]?tech|\blaw\b|rechtsanw|rechtsabteilung|rechtsberat|kanzlei|juristisch|\bjura\b|\bjurist/i,
+  },
+  {
     category: 'Consulting',
     pattern: /consulting|berat|mckinsey|\bbcg\b|\bbain\b|deloitte|\bpwc\b|\bkpmg\b|\bey\b|strategy&|strategyand|roland berger|oliver wyman|capgemini|\bzeb\b/i,
   },

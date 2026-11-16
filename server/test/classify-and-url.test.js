@@ -45,6 +45,17 @@ test('classifyCategory: Start-up & Venture Capital', () => {
   assert.equal(classifyCategory('Startup Pitch Night', 'Sonstiges'), 'Start-up & Venture Capital');
 });
 
+test('classifyCategory: Legal', () => {
+  assert.equal(classifyCategory('LegalTechTalk Europe 2027', 'Sonstiges'), 'Legal');
+  assert.equal(classifyCategory('Karriere in der Kanzlei: Einblicke', 'Sonstiges'), 'Legal');
+  assert.equal(classifyCategory('Recruiting Day Law Firms', 'Sonstiges'), 'Legal');
+  // Format-Stichwort hat weiter Vorrang vor der Branche
+  assert.equal(classifyCategory('Legal Tech Workshop', 'Sonstiges'), 'Workshop & Case Study');
+  // Beratung im Rechtskontext zählt als Legal, nicht als Consulting
+  assert.equal(classifyCategory('Rechtsberatung für Gründer', 'Sonstiges'), 'Start-up & Venture Capital');
+  assert.equal(classifyCategory('Rechtsberatung im Mittelstand', 'Sonstiges'), 'Legal');
+});
+
 test('classifyCategory: Banking & Finance', () => {
   assert.equal(classifyCategory('Last Call Steuerberaterexamen 2026', 'Sonstiges'), 'Banking & Finance');
   assert.equal(classifyCategory('Banking, Finance & Insurance Online', 'Sonstiges'), 'Banking & Finance');
