@@ -9,9 +9,10 @@ process.env.EVENTS_DB_PATH = path.join(dir, 'events.db');
 process.env.ADMIN_USER = 'admin';
 process.env.ADMIN_PASSWORD = 'e2e-test';
 
-const { seed } = require('./seed');
+const { seed, seedStats } = require('./seed');
 const app = require('../../server/src/app');
 
 seed();
+seedStats();
 const port = process.env.E2E_API_PORT || 4100;
 app.listen(port, () => console.log(`E2E-Backend auf Port ${port}`));

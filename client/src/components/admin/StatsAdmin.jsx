@@ -1,107 +1,109 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../api';
-
-const RANGES = [7, 30, 90];
-
-function formatDuration(seconds) {
-  if (!seconds) return '–';
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return m > 0 ? `${m} Min ${s} s` : `${s} s`;
-}
+import { formatDuration, formatInt, rangeQuery } from '../../lib/statsMath';
+import RangePicker from './stats/RangePicker';
+import StatsBreakdown from './stats/StatsBreakdown';
+import StatsCards from './stats/StatsCards';
+import StatsChart from './stats/StatsChart';
+import StatsDayTable from './stats/StatsDayTable';
 
 export default function StatsAdmin() {
-  const [days, setDays] = useState(7);
-  const [data, setData] = useState(null);
-  const [error, setError] = useState('');
+  const [range, setRange] = useState({ kind: 'days', days: 7 });
+  const [result, setResult] = useState({ key: null, data: null, error: '' });
+  const [exportError, setExportError] = useState('');
+  const query = rangeQuery(range);
 
   useEffect(() => {
-    setError('');
+    let cancelled = false;
     api.admin
-      .getStats(days)
-      .then(setData)
-      .catch((err) => setError(err.message));
-  }, [days]);
+      .getStats(query)
+      .then((data) => !cancelled && setResult({ key: query, data, error: '' }))
+      .catch((err) => !cancelled && setResult({ key: query, data: null, error: err.message }));
+    return () => {
+      cancelled = true;
+    };
+  }, [query]);
 
-  const maxViews = data ? Math.max(1, ...data.perDay.map((d) => d.views)) : 1;
+  const loading = result.key !== query;
+  const { data, error } = result;
+  const byMonth = data?.granularity === 'month';
+  const noData = data && data.totals.views === 0;
+
+  async function exportCsv() {
+    setExportError('');
+    try {
+      const blob = await api.admin.getStatsCsv(query);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `statistik-${data.from}_${data.to}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setExportError(err.message);
+    }
+  }
 
   return (
-    <section>
+    <section className="stats-admin">
       <div className="section-header">
         <h2>Besucherstatistik</h2>
-        <div className="mode-switch">
-          {RANGES.map((r) => (
-            <button
-              key={r}
-              type="button"
-              className={days === r ? 'mode-btn active' : 'mode-btn'}
-              onClick={() => setDays(r)}
-            >
-              {r} Tage
-            </button>
-          ))}
-        </div>
+        <button type="button" className="btn-ghost" onClick={exportCsv} disabled={!data}>
+          Als CSV
+        </button>
       </div>
+      <RangePicker range={range} onChange={setRange} today={data?.today} />
       {error && <p className="error">{error}</p>}
+      {exportError && <p className="error">{exportError}</p>}
+      {loading && !data && <p className="hint">Lade …</p>}
       {data && (
-        <>
-          <div className="stats-cards">
-            <div className="stats-card">
-              <strong>{data.totals.visitors}</strong>
-              <span>Besucher (Summe der Tage)</span>
-            </div>
-            <div className="stats-card">
-              <strong>{data.totals.views}</strong>
-              <span>Seitenaufrufe</span>
-            </div>
-            <div className="stats-card">
-              <strong>{formatDuration(data.totals.avgSeconds)}</strong>
-              <span>Ø Verweildauer pro Aufruf</span>
-            </div>
-          </div>
+        <div className={loading ? 'stats-body is-loading' : 'stats-body'}>
+          <StatsCards data={data} />
           <p className="hint">
-            Ohne Cookies und ohne IP-Speicherung gemessen. Wer an mehreren Tagen kommt, zählt pro Tag einmal. Besucher mit
-            „Do Not Track“ und Bots sind nicht enthalten.
+            Ohne Cookies und ohne IP-Speicherung gemessen, daher sind es Schätzungen. Besucher mit „Do Not Track“ und Bots sind
+            nicht enthalten. Der heutige Tag ist noch unvollständig und fließt nicht in Durchschnitte und Vergleiche ein.
           </p>
 
-          <h3>Pro Tag</h3>
-          <div className="stats-days" role="img" aria-label="Seitenaufrufe pro Tag">
-            {data.perDay.map((d) => (
-              <div
-                key={d.day}
-                className="stats-bar"
-                style={{ height: `${Math.round((d.views / maxViews) * 100)}%` }}
-                title={`${d.day}: ${d.visitors} Besucher, ${d.views} Aufrufe`}
-              />
-            ))}
-          </div>
+          <h3>{byMonth ? 'Pro Monat' : 'Pro Tag'}</h3>
+          {noData ? (
+            <p className="stats-empty">Noch keine Daten in diesem Zeitraum.</p>
+          ) : (
+            <>
+              <StatsChart perDay={data.perDay} byMonth={byMonth} />
+              <StatsDayTable perDay={data.perDay} byMonth={byMonth} />
+            </>
+          )}
+
+          <StatsBreakdown groups={data.groups} weekday={data.weekday} />
 
           <h3>Beliebteste Seiten</h3>
           {data.topPages.length === 0 ? (
             <p>Noch keine Daten.</p>
           ) : (
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Seite</th>
-                  <th>Aufrufe</th>
-                  <th>Besucher</th>
-                  <th>Ø Dauer</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.topPages.map((p) => (
-                  <tr key={p.path}>
-                    <td>{p.path}</td>
-                    <td>{p.views}</td>
-                    <td>{p.visitors}</td>
-                    <td>{formatDuration(p.avgSeconds)}</td>
+            <div className="stats-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Seite</th>
+                    <th>Aufrufe</th>
+                    <th>Besucher</th>
+                    <th>Ø Dauer</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {data.topPages.map((p) => (
+                    <tr key={p.path}>
+                      <td>{p.path}</td>
+                      <td>{formatInt(p.views)}</td>
+                      <td>{formatInt(p.visitors)}</td>
+                      <td>{formatDuration(p.avgSeconds)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
-        </>
+        </div>
       )}
     </section>
   );

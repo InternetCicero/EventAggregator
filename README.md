@@ -124,6 +124,9 @@ Einfache Zählung ohne Cookies und ohne IP-Speicherung (Spec `docs/specs/2026-11
 - Auswertung im Admin-Bereich unter „Statistik“ (7, 30, 90 Tage). „Besucher“ ist die Summe der Tagesbesucher.
 - Hinter nginx gilt `trust proxy` für `127.0.0.1`, damit die echte IP aus `X-Forwarded-For` für den Tageshash genutzt wird.
 
+Das Admin-Dashboard (Reiter "Statistik") zeigt Besucher heute und gestern, Ø Besucher pro Tag mit Vergleich zur Vorperiode, Spitzentag, Aufrufe pro Besucher, ein Diagramm mit Zahlenwerten pro Tag (7, 30, 90 Tage, 12 Monate oder eigener Zeitraum), Seitengruppen, Wochentagsmuster und einen CSV-Export (`GET /api/admin/stats.csv`). Der laufende Tag ist als "läuft noch" markiert und fließt nicht in Durchschnitte ein. Es gibt bewusst keinen echten "Besucher im Zeitraum"-Wert, weil die Tageskennung täglich wechselt.
+
+
 ## Tests und Pipeline
 
 - `server`: `npm test` (Unit- und API-Tests), `npm run lint`

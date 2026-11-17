@@ -129,7 +129,13 @@ export const api = {
     deleteCompany: (id) =>
       fetch(`${BASE}/admin/companies/${id}`, { method: 'DELETE', headers: authHeader() }).then(handle),
 
-    getStats: (days) => fetch(`${BASE}/admin/stats?days=${days}`, { headers: authHeader() }).then(handle),
+    // query: z. B. "days=7", "range=12m" oder "from=2026-01-01&to=2026-01-31"
+    getStats: (query) => fetch(`${BASE}/admin/stats?${query}`, { headers: authHeader() }).then(handle),
+    getStatsCsv: async (query) => {
+      const res = await fetch(`${BASE}/admin/stats.csv?${query}`, { headers: authHeader() });
+      if (!res.ok) await handle(res);
+      return res.blob();
+    },
 
     getSources: () => fetch(`${BASE}/admin/sources`, { headers: authHeader() }).then(handle),
     createSource: (data) =>
