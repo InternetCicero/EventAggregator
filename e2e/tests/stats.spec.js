@@ -61,3 +61,35 @@ test('Statistik: leerer Zeitraum zeigt "Noch keine Daten" (AC-9)', async ({ page
   await expectNoPageOverflow(page);
   expectClean(problems);
 });
+
+test('Statistik Phase 2: Verweildauer, Tageszeit und Geräte werden gezeigt (AC-10 bis AC-12)', async ({ page }) => {
+  const problems = watchPage(page);
+  await openStats(page);
+  await expect(page.getByRole('heading', { name: 'Wie lange bleiben sie?' })).toBeVisible();
+  await expect(page.locator('.stats-stack')).toBeVisible();
+  await expect(page.getByText('der Besucher sehen nur eine Seite')).toBeVisible();
+  await expect(page.locator('.stats-hour')).toHaveCount(24);
+  await expect(page.getByText('Die meisten Aufrufe kommen zwischen')).toBeVisible();
+  await expect(page.getByText('Handy', { exact: true })).toBeVisible();
+  await expectNoPageOverflow(page);
+  await expectNoElementOverflow(page, '.stats-engagement');
+  expectClean(problems);
+});
+
+test('Statistik Phase 2: bei 90 Tagen steht "erst ab" statt erfundener Nullen (AC-12)', async ({ page }) => {
+  await openStats(page);
+  await pick(page, '90 Tage');
+  await expect(page.getByText(/Daten erst ab \d+\.\d+\. verfügbar/).first()).toBeVisible();
+  await expectNoPageOverflow(page);
+});
+
+test('Statistik Phase 2: leerer Zeitraum zeigt Hinweis statt Diagrammen', async ({ page }) => {
+  await openStats(page);
+  await page.locator('.stats-range').getByRole('button', { name: 'Zeitraum …' }).click();
+  await page.getByLabel('Von').fill('2020-01-01');
+  await page.getByLabel('Bis').fill('2020-01-31');
+  await page.getByRole('button', { name: 'Anwenden' }).click();
+  await expect(page.locator('.stats-stack')).toHaveCount(0);
+  await expect(page.locator('.stats-hour')).toHaveCount(0);
+  await expect(page.getByText(/noch keine Daten/i).first()).toBeVisible();
+});

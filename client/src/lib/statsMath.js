@@ -108,3 +108,29 @@ export function groupShares(groups) {
     });
   return out.map(({ exact: _exact, ...g }) => g);
 }
+
+// Hinweis, wenn eine Auswertung erst ab einem bestimmten Tag erfasst wird (Phase 2).
+// from: erster Tag mit Daten (oder null), rangeFrom: Beginn des gewählten Zeitraums.
+export function availabilityNote(from, rangeFrom, hasData) {
+  if (!from) return 'Noch keine Daten. Die Auswertung füllt sich ab dem ersten abgeschlossenen Tag nach dem Update.';
+  if (!hasData) return `Im gewählten Zeitraum noch keine Daten (erfasst ab ${shortLabel(from)}).`;
+  if (from > rangeFrom) return `Daten erst ab ${shortLabel(from)} verfügbar, davor wurde das nicht erfasst.`;
+  return null;
+}
+
+// Stunde mit den meisten Aufrufen; null, wenn es keine gibt.
+export function peakHour(hours) {
+  let best = -1;
+  let max = 0;
+  hours.forEach((v, h) => {
+    if (v > max) {
+      max = v;
+      best = h;
+    }
+  });
+  return best < 0 ? null : best;
+}
+
+export function percentOf(part, total) {
+  return total > 0 ? Math.round((part / total) * 100) : 0;
+}

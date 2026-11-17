@@ -126,6 +126,8 @@ Einfache Zählung ohne Cookies und ohne IP-Speicherung (Spec `docs/specs/2026-11
 
 Das Admin-Dashboard (Reiter "Statistik") zeigt Besucher heute und gestern, Ø Besucher pro Tag mit Vergleich zur Vorperiode, Spitzentag, Aufrufe pro Besucher, ein Diagramm mit Zahlenwerten pro Tag (7, 30, 90 Tage, 12 Monate oder eigener Zeitraum), Seitengruppen, Wochentagsmuster und einen CSV-Export (`GET /api/admin/stats.csv`). Der laufende Tag ist als "läuft noch" markiert und fließt nicht in Durchschnitte ein. Es gibt bewusst keinen echten "Besucher im Zeitraum"-Wert, weil die Tageskennung täglich wechselt.
 
+Zusätzlich (Phase 2, Schema v8): Verteilung der Verweildauer (unter 10 s, 10 bis 60 s, 1 bis 5 min, über 5 min), Anteil der Besucher mit nur einem Aufruf (Näherung der Absprungrate), Aufrufe nach Tageszeit (Europe/Berlin) und grobe Gerätekategorie (Handy, Tablet, Desktop, Sonstige). Gespeichert werden dafür nur Zähler; die Browserkennung wird beim Eintreffen in eine Kategorie übersetzt und nie abgelegt. Die Werte gibt es erst ab dem Tag des Updates, davor zeigt das Dashboard "Daten erst ab …" statt Nullen.
+
 
 ## Tests und Pipeline
 

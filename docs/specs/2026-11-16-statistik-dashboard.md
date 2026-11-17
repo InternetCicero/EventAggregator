@@ -1,6 +1,6 @@
 # Spec: Statistik-Dashboard lesbar und aussagekräftig machen
 
-- **Status:** In Review (Phase 1 umgesetzt)
+- **Status:** In Review (Phase 1 live, Phase 2 umgesetzt)
 - **Version:** 1
 - **Autor:** Laurenz Polanski (mit Claude)
 - **Erstellt:** 2026-11-16
@@ -132,8 +132,8 @@ Besucherstatistik          [Heute] [7 Tage] [30 Tage] [90 Tage] [12 Monate] [Zei
 - [x] T3: Frontend: Diagramm mit Achsen und Werten, Tagestabelle, neue Karten, Zeitraum-Auswahl (AC-1, AC-2, AC-6)
 - [x] T4: Seitengruppen, Wochentagsmuster, CSV-Button (AC-5, AC-7)
 - [x] T5: e2e: Stats-Testdaten in `e2e/support/seed.js` (hohe Zahlen, 90 Tage, leere Variante) und UI-Tests für den Reiter (AC-9)
-- [ ] T6: Phase 2: Migration v8, Erfassung von Stunde, Gerätetyp, Einzelaufruf-Besucher, Verweildauer-Buckets, Anzeige mit "ab TT.MM." (AC-10 bis AC-12)
-- [ ] T7: Datenschutzerklärung und README anpassen (Phase 2: Gerätetyp als grobe Klasse, kein User-Agent gespeichert)
+- [x] T6: Phase 2: Migration v8, Erfassung von Stunde, Gerätetyp, Einzelaufruf-Besucher, Verweildauer-Buckets, Anzeige mit "ab TT.MM." (AC-10 bis AC-12)
+- [x] T7: Datenschutzerklärung und README anpassen (Phase 2: Gerätetyp als grobe Klasse, kein User-Agent gespeichert)
 - [ ] T8: Phase 3 nur nach Freigabe (AC-13, AC-14)
 - [ ] T9: Nach dem Deploy: Zahlen mit den bekannten Besucherzahlen vergleichen
 
@@ -167,3 +167,4 @@ Vorschlag für die PRs: **PR 1 = T1 bis T5 (Phase 1)**, PR 2 = T6/T7 (Phase 2), 
 
 - v1 (2026-11-16): Erstes Konzept.
 - v1.1 (2026-11-16): Freigegeben, Phase 1 zuerst, alle Vorschläge übernommen (Phase 2 danach inkl. Gerätetyp, Granularität Monate; Phase 3 nicht jetzt). Umsetzung Phase 1 (T1 bis T5): Der Zeitraum "Heute" entfällt, weil die Karten "Besucher heute" und "gestern" das abdecken und ohne Stundenwerte ein Einzeltag nur ein Balken wäre. Eigener Zeitraum ist auf 400 Tage begrenzt (nicht auf vorhandene Daten gekürzt); länger als 120 Tage wird monatlich dargestellt.
+- v1.2 (2026-11-17): Phase 2 umgesetzt (T6, T7). Verweildauer-Klassen und Einzelaufruf-Besucher stehen als Spalten in `stats_daily` (nur Zeile `*`), Stunde und Gerätekategorie in den neuen Tabellen `stats_hourly` und `stats_device`; die Einzelaufrufe tragen dafür die Spalten `hour` und `device` (zwei Tage lang, dann verdichtet). Alle Verteilungen nutzen nur abgeschlossene Tage. "Daten erst ab …" kommt aus dem ersten Tag mit Erfassung. Die Gerätekategorie wird beim Eintreffen aus der Browserkennung abgeleitet, die Browserkennung wird nicht gespeichert (Schematest prüft das).
