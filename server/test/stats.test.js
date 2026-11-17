@@ -23,7 +23,7 @@ before(async () => {
 });
 after(() => server.close());
 const clear = () => {
-  db.exec('DELETE FROM stats_views; DELETE FROM stats_daily;');
+  db.exec('DELETE FROM stats_views; DELETE FROM stats_daily; DELETE FROM stats_hourly; DELETE FROM stats_device;');
 };
 const post = (url, body, headers = {}) =>
   fetch(`${base}${url}`, {
@@ -54,7 +54,7 @@ test('Aufruf speichert nur Tag, Pfad und Hash, keine IP/UA (AC-1, AC-2)', () => 
   clear();
   statsRepo.recordView({ ip: '203.0.113.7', userAgent: UA, path: '/materialien', now: T0 });
   const row = db.prepare('SELECT * FROM stats_views').get();
-  assert.deepEqual(Object.keys(row).sort(), ['day', 'id', 'last_ping_at', 'path', 'seconds', 'started_at', 'visitor']);
+  assert.deepEqual(Object.keys(row).sort(), ['day', 'device', 'hour', 'id', 'last_ping_at', 'path', 'seconds', 'started_at', 'visitor']);
   assert.equal(row.day, '2026-11-10');
   assert.ok(!JSON.stringify(row).includes('203.0.113.7'));
   assert.ok(!JSON.stringify(row).includes('Mozilla'));
@@ -113,8 +113,8 @@ test('Verdichtung: alte Aufrufe werden Tageswerte, Kennungen verschwinden (AC-11
 
 test('Sehr alte Tageswerte werden gelöscht', () => {
   clear();
-  db.prepare("INSERT INTO stats_daily VALUES ('2025-01-01', '*', 5, 3, 100, 4)").run();
-  db.prepare("INSERT INTO stats_daily VALUES ('2026-11-01', '*', 5, 3, 100, 4)").run();
+  db.prepare("INSERT INTO stats_daily (day, path, views, visitors, total_seconds, timed_views) VALUES ('2025-01-01', '*', 5, 3, 100, 4)").run();
+  db.prepare("INSERT INTO stats_daily (day, path, views, visitors, total_seconds, timed_views) VALUES ('2026-11-01', '*', 5, 3, 100, 4)").run();
   statsRepo.compactOldViews(T0);
   assert.deepEqual(db.prepare('SELECT day FROM stats_daily').all().map((r) => r.day), ['2026-11-01']);
 });

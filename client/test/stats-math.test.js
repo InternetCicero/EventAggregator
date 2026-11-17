@@ -8,6 +8,9 @@ import {
   formatDuration,
   formatCompact,
   rangeQuery,
+  availabilityNote,
+  peakHour,
+  percentOf,
   isWeekend,
   shortLabel,
   fullLabel,
@@ -83,4 +86,21 @@ test('formatCompact und rangeQuery', () => {
   assert.equal(rangeQuery({ kind: 'days', days: 30 }), 'days=30');
   assert.equal(rangeQuery({ kind: '12m' }), 'range=12m');
   assert.equal(rangeQuery({ kind: 'custom', from: '2026-01-01', to: '2026-01-31' }), 'from=2026-01-01&to=2026-01-31');
+});
+
+test('availabilityNote: Hinweis je nach Datenlage (AC-12)', () => {
+  assert.match(availabilityNote(null, '2026-11-01', false), /Noch keine Daten/);
+  assert.match(availabilityNote('2026-11-20', '2026-11-01', false), /noch keine Daten \(erfasst ab 20\.11\.\)/);
+  assert.match(availabilityNote('2026-11-05', '2026-11-01', true), /erst ab 5\.11\. verfügbar/);
+  assert.equal(availabilityNote('2026-11-01', '2026-11-05', true), null);
+});
+
+test('peakHour und percentOf', () => {
+  assert.equal(peakHour(Array(24).fill(0)), null);
+  const h = Array(24).fill(0);
+  h[18] = 5;
+  h[9] = 3;
+  assert.equal(peakHour(h), 18);
+  assert.equal(percentOf(1, 3), 33);
+  assert.equal(percentOf(0, 0), 0);
 });

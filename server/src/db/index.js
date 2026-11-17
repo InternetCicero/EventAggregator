@@ -165,7 +165,7 @@ if (!eventColumns.includes('duplicate_of')) {
 // (online/vor Ort) wird für bestehende Events nachträglich befüllt.
 // Läuft bewusst nur einmal, damit spätere manuelle Korrekturen im
 // Admin-Bereich bei einem Neustart nicht wieder überschrieben werden.
-const CURRENT_SCHEMA_VERSION = 7;
+const CURRENT_SCHEMA_VERSION = 8;
 const { user_version: schemaVersion } = db.prepare('PRAGMA user_version').get();
 
 // Alte Kategorie -> bester Startpunkt im neuen System, falls keine
@@ -353,6 +353,32 @@ db.exec(`
     total_seconds INTEGER NOT NULL,
     timed_views INTEGER NOT NULL,
     PRIMARY KEY (day, path)
+  );
+`);
+
+// Phase 2 der Statistik (Spec 2026-11-16-statistik-dashboard, v8): nur zusätzliche Zähler.
+// Stunde (Europe/Berlin) und grobe Gerätekategorie je Aufruf, nie Browserkennung oder IP.
+// Beim Verdichten entstehen daraus Tageszähler (Verweildauer-Klassen, Einzelaufruf-Besucher,
+// Aufrufe je Stunde und je Gerätekategorie). Ältere Tage haben dort NULL ("nicht erfasst").
+const viewColumns = db.prepare('PRAGMA table_info(stats_views)').all().map((c) => c.name);
+if (!viewColumns.includes('hour')) db.exec('ALTER TABLE stats_views ADD COLUMN hour INTEGER');
+if (!viewColumns.includes('device')) db.exec('ALTER TABLE stats_views ADD COLUMN device TEXT');
+const dailyColumns = db.prepare('PRAGMA table_info(stats_daily)').all().map((c) => c.name);
+for (const col of ['dur_short', 'dur_mid', 'dur_long', 'dur_xlong', 'single_visitors']) {
+  if (!dailyColumns.includes(col)) db.exec(`ALTER TABLE stats_daily ADD COLUMN ${col} INTEGER`);
+}
+db.exec(`
+  CREATE TABLE IF NOT EXISTS stats_hourly (
+    day TEXT NOT NULL,
+    hour INTEGER NOT NULL,
+    views INTEGER NOT NULL,
+    PRIMARY KEY (day, hour)
+  );
+  CREATE TABLE IF NOT EXISTS stats_device (
+    day TEXT NOT NULL,
+    device TEXT NOT NULL,
+    views INTEGER NOT NULL,
+    PRIMARY KEY (day, device)
   );
 `);
 

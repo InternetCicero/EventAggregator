@@ -73,15 +73,34 @@ function seed() {
 function seedStats() {
   const today = statsRepo.dayOf(Date.now());
   const ins = db.prepare(
-    'INSERT INTO stats_daily (day, path, views, visitors, total_seconds, timed_views) VALUES (?, ?, ?, ?, ?, ?)',
+    `INSERT INTO stats_daily (day, path, views, visitors, total_seconds, timed_views, dur_short, dur_mid, dur_long, dur_xlong, single_visitors)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   );
+  const hourly = db.prepare('INSERT INTO stats_hourly (day, hour, views) VALUES (?, ?, ?)');
+  const device = db.prepare('INSERT INTO stats_device (day, device, views) VALUES (?, ?, ?)');
   const pages = ['/', '/jobs', '/jobs/:id', '/materialien', '/materialien/:id', '/einreichen', '/impressum'];
   for (let i = 1; i <= 120; i++) {
     const day = statsRepo.shiftDay(today, -i);
     const visitors = i === 3 ? 1234567 : 20 + ((i * 7) % 45);
     const views = visitors * 2 + 3;
-    ins.run(day, '*', views, visitors, visitors * 40, visitors);
-    pages.forEach((path, n) => ins.run(day, path, Math.round(views / (n + 2)), Math.round(visitors / (n + 2)), 0, 0));
+    // Phase-2-Werte gibt es nur für die letzten 60 Tage (davor "nicht erfasst", wie vor dem Update)
+    const p2 = i <= 60;
+    const cut = (share) => Math.floor(views * share);
+    ins.run(
+      day, '*', views, visitors, visitors * 40, visitors,
+      p2 ? cut(0.4) : null, p2 ? cut(0.3) : null, p2 ? cut(0.2) : null, p2 ? views - cut(0.4) - cut(0.3) - cut(0.2) : null,
+      p2 ? Math.floor(visitors * 0.45) : null,
+    );
+    pages.forEach((path, n) =>
+      ins.run(day, path, Math.round(views / (n + 2)), Math.round(visitors / (n + 2)), 0, 0, null, null, null, null, null),
+    );
+    if (p2) {
+      for (let h = 0; h < 24; h++) hourly.run(day, h, Math.max(1, Math.round((views / 24) * (h >= 8 && h <= 22 ? 1.5 : 0.2))));
+      device.run(day, 'mobile', Math.floor(views * 0.6));
+      device.run(day, 'desktop', Math.floor(views * 0.3));
+      device.run(day, 'tablet', Math.floor(views * 0.08));
+      device.run(day, 'other', views - Math.floor(views * 0.6) - Math.floor(views * 0.3) - Math.floor(views * 0.08));
+    }
   }
 }
 

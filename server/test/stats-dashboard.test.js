@@ -22,7 +22,7 @@ before(async () => {
 after(() => server.close());
 
 function clear() {
-  db.exec('DELETE FROM stats_views; DELETE FROM stats_daily;');
+  db.exec('DELETE FROM stats_views; DELETE FROM stats_daily; DELETE FROM stats_hourly; DELETE FROM stats_device;');
 }
 function addDay(day, { views, visitors, seconds = 0, timed = 0, pages = {} }) {
   const ins = db.prepare(

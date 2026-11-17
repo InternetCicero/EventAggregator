@@ -6,6 +6,7 @@ import StatsBreakdown from './stats/StatsBreakdown';
 import StatsCards from './stats/StatsCards';
 import StatsChart from './stats/StatsChart';
 import StatsDayTable from './stats/StatsDayTable';
+import StatsEngagement from './stats/StatsEngagement';
 
 export default function StatsAdmin() {
   const [range, setRange] = useState({ kind: 'days', days: 7 });
@@ -75,6 +76,8 @@ export default function StatsAdmin() {
           )}
 
           <StatsBreakdown groups={data.groups} weekday={data.weekday} />
+
+          <StatsEngagement data={data} />
 
           <h3>Beliebteste Seiten</h3>
           {data.topPages.length === 0 ? (

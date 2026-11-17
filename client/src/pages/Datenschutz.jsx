@@ -57,8 +57,9 @@ export default function Datenschutz() {
       </p>
       <ul>
         <li>
-          Gespeichert werden der aufgerufene Seitenbereich (z. B. „Materialien“), das Datum und die Verweildauer. Nicht
-          gespeichert werden IP-Adresse, Browserkennung, Herkunftsseite oder Standort.
+          Gespeichert werden der aufgerufene Seitenbereich (z. B. „Materialien“), das Datum, die Uhrzeit auf die Stunde
+          genau, die Verweildauer und eine grobe Gerätekategorie (Handy, Tablet, Desktop oder Sonstige). Nicht gespeichert
+          werden IP-Adresse, die Browserkennung selbst, Herkunftsseite oder Standort.
         </li>
         <li>
           Um einen Besucher am selben Tag nur einmal zu zählen, wird aus IP-Adresse und Browserangaben kurzzeitig ein

@@ -74,7 +74,7 @@ test('AC-10: nichts wird gelöscht, abgelehnt oder inhaltlich verändert', () =>
 });
 
 test('Schema steht auf Version 7 und die Migration läuft nur einmal', () => {
-  assert.equal(db.prepare('PRAGMA user_version').get().user_version, 7);
+  assert.equal(db.prepare('PRAGMA user_version').get().user_version, 8);
 });
 
 test.after(() => {
